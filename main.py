@@ -1,6 +1,8 @@
 from typing import Callable, Optional
 
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 Vector = np.ndarray
 FunctionType = Callable[[np.ndarray], np.ndarray]
@@ -22,7 +24,8 @@ class fractal2D:
         x_n = guess
         i = 0
         while np.linalg.norm(self.f(x_n)) > tol:
-            x_n = x_n - np.linalg.inv(self.get_jacobian_matrix(x_n)) @ self.f(x_n)
+            jac = self.get_jacobian_matrix(x_n)
+            x_n = x_n - np.linalg.inv(jac) @ self.f(x_n)
             i += 1
             if np.linalg.norm(x_n) > 100000:  # TODO: make it a reasonable number
                 return None
@@ -40,7 +43,7 @@ class fractal2D:
             return None
 
         for idx, z in enumerate(self.zeroes):
-            if np.abs(new_zero - z) < tol:
+            if np.linalg.norm(new_zero - z) < tol:
                 return idx  # index of the zero
 
         self.zeroes.append(new_zero)
@@ -62,18 +65,23 @@ class fractal2D:
 
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
-    def plot(self, vectors: list[Vector], N: int, coord: tuple[float]) -> None:
+    def plot(self, N: int, coord: tuple[float]) -> None:
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
 
-        # by default everything is -1
+        # by default everything is -1        
         A = np.zeros((N, N)) - 1
 
-        # VERY slow!!! FIXME
-        for i_y, y in enumerate(Y):
-            for i_x, x in enumerate(X):
-                # replace i_y, i_x'th entry with the index of zero or otherwise -2
-                A[i_y, i_x] = self.zeros_idx(np.array([y, x])) if not None else -2
+        for i_y in range(N):
+            for i_x in range(N):
+                x = X[i_y, i_x]
+                y = Y[i_y, i_x]
+
+                idx = self.zeros_idx(np.array([x,y]))
+                A[i_y, i_x] = idx if idx is not None else -2
+
+        plt.pcolor(A)
+        plt.show()
 
 
 def F(x):
@@ -84,8 +92,7 @@ def F(x):
 
 def main():
     frac = fractal2D(F)
-    balls = frac.newtons_method(np.array([10,11]))
-    print(balls)
+    frac.plot(N=1000, coord=(-10,10,-10,10))
 
 
 if __name__ == "__main__":
