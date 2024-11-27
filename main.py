@@ -1,4 +1,5 @@
 from typing import Callable, Optional
+import time 
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,7 +9,7 @@ Vector = np.ndarray
 FunctionType = Callable[[np.ndarray], np.ndarray]
 Number = int | float | np.number
 
-tol = 1e-13
+tol = 1
 
 
 class fractal2D:
@@ -65,6 +66,15 @@ class fractal2D:
 
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
+    def compute_indices(self, points: np.ndarray) -> np.ndarray:
+        """Vectorized computation for all points."""
+        indices = []
+        for point in points:
+            idx = self.zeros_idx(point)
+            indices.append(idx if idx is not None else -2)
+        return np.array(indices)
+
+
     def plot(self, N: int, coord: tuple[float]) -> None:
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
@@ -72,15 +82,11 @@ class fractal2D:
         # by default everything is -1        
         A = np.zeros((N, N)) - 1
 
-        for i_y in range(N):
-            for i_x in range(N):
-                x = X[i_y, i_x]
-                y = Y[i_y, i_x]
-
-                idx = self.zeros_idx(np.array([x,y]))
-                A[i_y, i_x] = idx if idx is not None else -2
-
+        points = np.column_stack((X.ravel(), Y.ravel()))
+        indices = self.compute_indices(points)
+        A = indices.reshape((N, N))
         plt.pcolor(A)
+        print(time.perf_counter())
         plt.show()
 
 
@@ -91,9 +97,10 @@ def F(x):
 
 
 def main():
+    start = time.perf_counter()
+    print(start)
     frac = fractal2D(F)
     frac.plot(N=1000, coord=(-10,10,-10,10))
-
 
 if __name__ == "__main__":
     main()
