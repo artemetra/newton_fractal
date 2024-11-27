@@ -1,5 +1,5 @@
 from typing import Callable, Optional
-import time 
+import time
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 Vector = np.ndarray
 FunctionType = Callable[[np.ndarray], np.ndarray]
+JacobianType = list[list[FunctionType]]
 Number = int | float | np.number
 
 tol = 1
@@ -15,13 +16,12 @@ tol = 1
 class fractal2D:
     zeroes: list[Vector] = []
 
-    def __init__(self, f: FunctionType, f_prime: Optional[FunctionType] = None):
+    def __init__(self, f: FunctionType, jacobian_f: Optional[JacobianType] = None):
         self.f = f
-        self.f_prime = f_prime
+        self.jacobian_f = jacobian_f
 
     def newtons_method(self, guess: Vector) -> Optional[Vector]:
         """Task 2: Performs Newton's method on function `self.f` using `guess` as a starting point."""
-        # TODO: handle divergence
         x_n = guess
         i = 0
         while np.linalg.norm(self.f(x_n)) > tol:
@@ -35,10 +35,13 @@ class fractal2D:
 
         return x_n
 
-    def zeros_idx(self, guess: Vector) -> Optional[int]:
+    def zeros_idx(self, guess: Vector, simplified: bool) -> Optional[int]:
         """Task 3"""
-        # TODO
-        new_zero = self.newtons_method(guess)
+        if simplified:
+            new_zero = self.simplified_newtons_method(guess)
+        else:
+            new_zero = self.newtons_method(guess)
+
         if new_zero is None:
             # newton's method did not converge
             return None
@@ -55,9 +58,11 @@ class fractal2D:
 
         h = 0.00001
 
-        guess_x = np.array([guess[0] + h, guess[1]]) #takes the guess and adds h to the x value
-        guess_y = np.array([guess[0], guess[1] + h]) #same but for y
-        
+        guess_x = np.array(
+            [guess[0] + h, guess[1]]
+        )  # takes the guess and adds h to the x value
+        guess_y = np.array([guess[0], guess[1] + h])  # same but for y
+
         # Partial derivatives:
         del_f1_x = (self.f(guess_x)[0] - self.f(guess)[0]) / h
         del_f1_y = (self.f(guess_y)[0] - self.f(guess)[0]) / h
@@ -66,28 +71,41 @@ class fractal2D:
 
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
-    def compute_indices(self, points: np.ndarray) -> np.ndarray:
+    def compute_indices(self, points: np.ndarray, simplified: bool) -> np.ndarray:
         """Vectorized computation for all points."""
         indices = []
         for point in points:
-            idx = self.zeros_idx(point)
+            idx = self.zeros_idx(point, simplified)
             indices.append(idx if idx is not None else -2)
         return np.array(indices)
 
-
-    def plot(self, N: int, coord: tuple[float]) -> None:
+    def plot(self, N: int, coord: tuple[float], simplified=False) -> None:
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
 
-        # by default everything is -1        
+        # by default everything is -1
         A = np.zeros((N, N)) - 1
 
         points = np.column_stack((X.ravel(), Y.ravel()))
-        indices = self.compute_indices(points)
+        indices = self.compute_indices(points, simplified)
         A = indices.reshape((N, N))
         plt.pcolor(A)
-        print(time.perf_counter())
+        plt.legend()
         plt.show()
+
+    def simplified_newtons_method(self, guess: Vector) -> Optional[Vector]:
+        """Task 5: Performs simplified Newton's method on function `self.f` using `guess` as a starting point."""
+        # TODO: this doesn't work lmaooooo
+        x_n = guess
+        invjac = np.linalg.inv(self.get_jacobian_matrix(guess))
+        i = 0
+        while np.linalg.norm(self.f(x_n)) > tol:
+            x_n = x_n - invjac @ self.f(x_n)
+            i += 1
+            if np.linalg.norm(x_n) > 1000000:
+                return None
+            if i >= 10000:
+                return None
 
 
 def F(x):
@@ -97,10 +115,9 @@ def F(x):
 
 
 def main():
-    start = time.perf_counter()
-    print(start)
     frac = fractal2D(F)
-    frac.plot(N=1000, coord=(-10,10,-10,10))
+    frac.plot(N=100, coord=(-1, 1, -1, 1), simplified=True)
+
 
 if __name__ == "__main__":
     main()
