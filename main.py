@@ -42,12 +42,17 @@ class fractal2D:
         self.zeroes.append(new_zero)
         return len(self.zeroes) - 1  # index of the last zero
 
-    def get_jacobian_matrix(self, x_n: Vector) -> np.ndarray:
+    def get_jacobian_matrix(self, guess: Vector) -> np.ndarray:
         """For finding the derivative"""
 
-        jac = ...
-        self.f([])
-        raise NotImplementedError
+        h = 0.0001
+
+        guess2 = np.array([guess[0] + h, guess[1]])
+        del_f1_x =(self.f(guess2)[0]-self.f(guess)[0]) / h
+
+        return del_f1_x
+
+        pass
 
     def plot(self, vectors: list[Vector], N: int, coord: tuple[float]) -> None:
         a, b, c, d = coord
@@ -63,9 +68,17 @@ class fractal2D:
                 A[i_y, i_x] = self.zeros_idx(np.array([y, x])) if not None else -2
 
 
+def F(x):
+    x1 = x[0]
+    x2 = x[1]
+    return np.array(
+        [x1**3 - 3*x1*x2**2 - 1,
+         3*x1**2*x2 - x2**3]
+    )
+
 def main():
-    f = fractal2D(lambda x: x**2)
-    f.plot([np.array((1, 2))], N=5, coord=(1, 2, 3, 4))
+    frac = fractal2D(F)
+    frac.get_jacobian_matrix([10,11])
 
 
 if __name__ == "__main__":
