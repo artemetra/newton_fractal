@@ -47,15 +47,16 @@ class fractal2D:
 
         h = 0.0001
 
-        guess2 = np.array([guess[0] + h, guess[1]]) #takes the guess and adds h to the x value
-        guess3 = np.array([guess[0], guess[1] + h]) #same but for y
-        del_f1_x =(self.f(guess2)[0]-self.f(guess)[0]) / h #this is trivial
-        del_f1_y = (self.f(guess3)[0]-self.f(guess)[0]) / h
-        del_f2_x = (self.f(guess2)[1]-self.f(guess)[1]) / h
-        del_f2_y = (self.f(guess3)[1]-self.f(guess)[1]) / h
+        guess_x = np.array([guess[0] + h, guess[1]]) #takes the guess and adds h to the x value
+        guess_y = np.array([guess[0], guess[1] + h]) #same but for y
+        
+        # Partial derivatives:
+        del_f1_x = (self.f(guess_x)[0] - self.f(guess)[0]) / h
+        del_f1_y = (self.f(guess_y)[0] - self.f(guess)[0]) / h
+        del_f2_x = (self.f(guess_x)[1] - self.f(guess)[1]) / h
+        del_f2_y = (self.f(guess_y)[1] - self.f(guess)[1]) / h
 
-
-        pass
+        return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
     def plot(self, vectors: list[Vector], N: int, coord: tuple[float]) -> None:
         a, b, c, d = coord
@@ -74,14 +75,12 @@ class fractal2D:
 def F(x):
     x1 = x[0]
     x2 = x[1]
-    return np.array(
-        [x1**3 - 3*x1*x2**2 - 1,
-         3*x1**2*x2 - x2**3]
-    )
+    return np.array([x1**3 - 3 * x1 * x2**2 - 1, 3 * x1**2 * x2 - x2**3])
+
 
 def main():
     frac = fractal2D(F)
-    frac.get_jacobian_matrix([10,11])
+    frac.get_jacobian_matrix([10, 11])
 
 
 if __name__ == "__main__":
