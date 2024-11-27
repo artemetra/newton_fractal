@@ -6,6 +6,7 @@ Vector = np.ndarray
 FunctionType = Callable[[np.ndarray], np.ndarray]
 Number = int | float | np.number
 
+tol = 1e-12
 
 class fractal2D:
     zeroes: list[Vector] = []
@@ -15,14 +16,26 @@ class fractal2D:
         self.f_prime = f_prime
 
     def newtons_method(self, guess: Vector) -> Vector:
-        """Performs Newton's method on function `self.f` using `guess` as a starting point."""
+        """Task 2: Performs Newton's method on function `self.f` using `guess` as a starting point."""
         # TODO
-        pass
+        
+        x_n = guess
+        while np.linalg.norm(self.f(x_n)) > tol:
+            x_n = x_n - np.linalg.inv(self.get_jacobian_matrix()) @ self.f(x_n)
+
+        return x_n
 
     def add_to_zeroes(self, guess: Vector):
         """Task 3"""
         # TODO
         pass
+
+
+    def get_jacobian_matrix(self, x_n: Vector) -> np.ndarray:
+        """For finding the derivative"""
+        self.f([])
+        pass
+    
 
 
 def main():
