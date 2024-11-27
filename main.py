@@ -1,5 +1,4 @@
 from typing import Callable, Optional
-import time
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,8 +9,7 @@ FunctionType = Callable[[np.ndarray], np.ndarray]
 JacobianType = list[list[FunctionType]]
 Number = int | float | np.number
 
-tol = 1
-
+tol = 1e-6
 
 class fractal2D:
     zeroes: list[Vector] = []
@@ -87,6 +85,7 @@ class fractal2D:
         A = np.zeros((N, N)) - 1
 
         points = np.column_stack((X.ravel(), Y.ravel()))
+        # TODO: this is still reeeaaaallllyyy slow
         indices = self.compute_indices(points, simplified)
         A = indices.reshape((N, N))
         plt.pcolor(A)
