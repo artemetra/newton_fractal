@@ -6,7 +6,7 @@ Vector = np.ndarray
 FunctionType = Callable[[np.ndarray], np.ndarray]
 Number = int | float | np.number
 
-tol = 1e-12
+tol = 1e-13
 
 
 class fractal2D:
@@ -20,9 +20,13 @@ class fractal2D:
         """Task 2: Performs Newton's method on function `self.f` using `guess` as a starting point."""
         # TODO: handle divergence
         x_n = guess
+        i = 0
         while np.linalg.norm(self.f(x_n)) > tol:
-            x_n = x_n - np.linalg.inv(self.get_jacobian_matrix()) @ self.f(x_n)
+            x_n = x_n - np.linalg.inv(self.get_jacobian_matrix(x_n)) @ self.f(x_n)
+            i += 1
             if np.linalg.norm(x_n) > 100000:  # TODO: make it a reasonable number
+                return None
+            if i >= 10000:
                 return None
 
         return x_n
@@ -45,7 +49,7 @@ class fractal2D:
     def get_jacobian_matrix(self, guess: Vector) -> np.ndarray:
         """For finding the derivative"""
 
-        h = 0.0001
+        h = 0.00001
 
         guess_x = np.array([guess[0] + h, guess[1]])
         guess_y = np.array([guess[0], guess[1] + h])
@@ -80,7 +84,8 @@ def F(x):
 
 def main():
     frac = fractal2D(F)
-    frac.get_jacobian_matrix([10, 11])
+    balls = frac.newtons_method(np.array([10,11]))
+    print(balls)
 
 
 if __name__ == "__main__":
