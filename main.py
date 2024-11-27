@@ -27,7 +27,7 @@ class fractal2D:
 
         return x_n
 
-    def add_to_zeroes(self, guess: Vector) -> Optional[int]:
+    def zeros_idx(self, guess: Vector) -> Optional[int]:
         """Task 3"""
         # TODO
         new_zero = self.newtons_method(guess)
@@ -44,22 +44,28 @@ class fractal2D:
 
     def get_jacobian_matrix(self, x_n: Vector) -> np.ndarray:
         """For finding the derivative"""
+
         jac = ...
         self.f([])
-        pass
+        raise NotImplementedError
 
-    def plot(
-        self, vectors: list[Vector], N: int, coord: tuple[float]
-    ) -> None:
-        a,b,c,d = coord
-        X, Y = np.meshgrid(np.linspace(a,b, N), np.linspace(c,d, N))
-        # convert all Xs and Ys into a single array of all points
-        points = np.column_stack((X.ravel(), Y.ravel()))
-        print(points)
+    def plot(self, vectors: list[Vector], N: int, coord: tuple[float]) -> None:
+        a, b, c, d = coord
+        X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
+
+        # by default everything is -1
+        A = np.zeros((N, N)) - 1
+
+        # VERY slow!!! FIXME
+        for i_y, y in enumerate(Y):
+            for i_x, x in enumerate(X):
+                # replace i_y, i_x'th entry with the index of zero or otherwise -2
+                A[i_y, i_x] = self.zeros_idx(np.array([y, x])) if not None else -2
+
 
 def main():
     f = fractal2D(lambda x: x**2)
-    f.plot([np.array((1,2))], N=5, coord=(1,2,3,4))
+    f.plot([np.array((1, 2))], N=5, coord=(1, 2, 3, 4))
 
 
 if __name__ == "__main__":
