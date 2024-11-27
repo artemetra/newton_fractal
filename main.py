@@ -51,8 +51,8 @@ class fractal2D:
 
         h = 0.00001
 
-        guess_x = np.array([guess[0] + h, guess[1]])
-        guess_y = np.array([guess[0], guess[1] + h])
+        guess_x = np.array([guess[0] + h, guess[1]]) #takes the guess and adds h to the x value
+        guess_y = np.array([guess[0], guess[1] + h]) #same but for y
         
         # Partial derivatives:
         del_f1_x = (self.f(guess_x)[0] - self.f(guess)[0]) / h
