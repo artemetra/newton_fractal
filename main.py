@@ -39,8 +39,10 @@ class fractal2D:
 
 
 def main():
-    print("this is a test from Otto")
+    print("this is a test from Björn")
 
 
 if __name__ == "__main__":
     main()
+
+#Hello :)
