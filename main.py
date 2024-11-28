@@ -34,7 +34,7 @@ class fractal2D:
 
         self.jac = lambda val: self.get_jacobian_matrix(val)
 
-    def newtons_method(self, guess: Vector) -> Optional[Vector]:
+    def newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
         """Task 2: Performs Newton's method on function `self.f` using `guess` as a starting point."""
         x_n = guess
         i = 0
@@ -67,7 +67,7 @@ class fractal2D:
         return len(self.zeroes) - 1  # index of the last zero
 
     def get_jacobian_matrix(self, guess: Vector) -> np.ndarray:
-        """For finding the derivative"""
+        """An approximation for finding the derivative"""
 
         h = 0.00001
 
@@ -91,7 +91,7 @@ class fractal2D:
             idx = self.zeros_idx(point, simplified)
             indices.append(idx if idx is not None else -2)
         return np.array(indices)
-    
+
     def compute_iterations(self, points: np.ndarray, simplified: bool) -> np.ndarray:
         """Task 7"""
         iterations = []
@@ -119,7 +119,7 @@ class fractal2D:
         # plt.show()
         plt.savefig(f"pics/{datetime.now()}.png")
 
-    def simplified_newtons_method(self, guess: Vector) -> Optional[Vector]:
+    def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
         """Task 5: Performs simplified Newton's method on function `self.f` using `guess` as a starting point."""
         x_n = guess
         invjac = np.linalg.inv(self.jac(guess))
@@ -131,10 +131,10 @@ class fractal2D:
                 return None, i
             if i >= 10000:
                 return None, i
-        
+
         return x_n, i
-    
-    def iter_plot(self,  N: int, coord: tuple[float], simplified=False) -> None:
+
+    def iter_plot(self, N: int, coord: tuple[float], simplified=False) -> None:
         """Task 7"""
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
@@ -149,21 +149,53 @@ class fractal2D:
         # plt.legend()
         plt.show()
 
+
 def F(x):
     x1 = x[0]
     x2 = x[1]
     return np.array([x1**3 - 3 * x1 * x2**2 - 1, 3 * x1**2 * x2 - x2**3])
 
 
+def F1_Task8(x):
+    x1 = x[0]
+    x2 = x[1]
+    return np.array(
+        [x1**3 - 3 * x1 * x2**2 - 2 * x1 - 2, 3 * x1**2 * x2 - x2**3 - 2 * x2]
+    )
+
+
+def F2_Task8(x):
+    x1 = x[0]
+    x2 = x[1]
+    return np.array(
+        [
+            x1**8
+            - 28 * x1**6 * x2**2
+            + 70 * x1**4 * x2**4
+            + 15 * x1**4
+            - 28 * x1**2 * x2**6
+            - 90 * x1**2 * x2**2
+            + x2**8
+            + 15 * x2**4
+            - 16,
+            8 * x1**7 * x2
+            - 56 * x1**5 * x2**3
+            + 56 * x1**3 * x2**5
+            + 60 * x1**3 * x2
+            - 8 * x1 * x2**7
+            - 60 * x1 * x2**3,
+        ]
+    )
+
+
 def main():
-    jac = [
+    # the pre-calculated jacobian for function `F`
+    jac_F = [  # noqa: F841
         [lambda x, y: 3 * x**2 - 3 * y**2, lambda x, y: -6 * x * y],
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
-    frac = fractal2D(F, jac)
+    frac = fractal2D(F2_Task8)
     frac.iter_plot(N=100, coord=(-1, 1, -1, 1), simplified=False)
-
-
 
 
 if __name__ == "__main__":
