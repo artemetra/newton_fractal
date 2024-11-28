@@ -1,4 +1,5 @@
 from typing import Callable, Optional
+from datetime import datetime
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -114,7 +115,8 @@ class fractal2D:
         A = indices.reshape((N, N))
         plt.pcolor(A)
         # plt.legend()
-        plt.show()
+        # plt.show()
+        plt.savefig(f"pics/{datetime.now()}.png")
 
     def simplified_newtons_method(self, guess: Vector) -> Optional[Vector]:
         """Task 5: Performs simplified Newton's method on function `self.f` using `guess` as a starting point."""
