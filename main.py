@@ -11,20 +11,34 @@ Number = int | float | np.number
 
 tol = 1e-6
 
+
+def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
+    return np.array(
+        [
+            [jacobian[0][0](*val), jacobian[0][1](*val)],
+            [jacobian[1][0](*val), jacobian[1][1](*val)],
+        ]
+    )
+
+
 class fractal2D:
     zeroes: list[Vector] = []
 
     def __init__(self, f: FunctionType, jacobian_f: Optional[JacobianType] = None):
         self.f = f
-        self.jacobian_f = jacobian_f
+
+        if jacobian_f is not None:
+            self.jac = lambda val: evaluate_jacobian(jacobian_f, val)
+            return
+
+        self.jac = lambda val: self.get_jacobian_matrix(val)
 
     def newtons_method(self, guess: Vector) -> Optional[Vector]:
         """Task 2: Performs Newton's method on function `self.f` using `guess` as a starting point."""
         x_n = guess
         i = 0
         while np.linalg.norm(self.f(x_n)) > tol:
-            jac = self.get_jacobian_matrix(x_n)
-            x_n = x_n - np.linalg.inv(jac) @ self.f(x_n)
+            x_n = x_n - np.linalg.inv(self.jac(x_n)) @ self.f(x_n)
             i += 1
             if np.linalg.norm(x_n) > 100000:  # TODO: make it a reasonable number
                 return None
@@ -89,14 +103,13 @@ class fractal2D:
         indices = self.compute_indices(points, simplified)
         A = indices.reshape((N, N))
         plt.pcolor(A)
-        plt.legend()
+        # plt.legend()
         plt.show()
 
     def simplified_newtons_method(self, guess: Vector) -> Optional[Vector]:
         """Task 5: Performs simplified Newton's method on function `self.f` using `guess` as a starting point."""
-        # TODO: this doesn't work lmaooooo
         x_n = guess
-        invjac = np.linalg.inv(self.get_jacobian_matrix(guess))
+        invjac = np.linalg.inv(self.jac(guess))
         i = 0
         while np.linalg.norm(self.f(x_n)) > tol:
             x_n = x_n - invjac @ self.f(x_n)
@@ -105,6 +118,8 @@ class fractal2D:
                 return None
             if i >= 10000:
                 return None
+        
+        return x_n
 
 
 def F(x):
@@ -114,6 +129,10 @@ def F(x):
 
 
 def main():
+    jac = [
+        [lambda x, y: 3 * x**2 - 3 * y**2, lambda x, y: -6 * x * y],
+        [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
+    ]
     frac = fractal2D(F)
     frac.plot(N=100, coord=(-1, 1, -1, 1), simplified=True)
 
