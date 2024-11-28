@@ -41,18 +41,18 @@ class fractal2D:
             x_n = x_n - np.linalg.inv(self.jac(x_n)) @ self.f(x_n)
             i += 1
             if np.linalg.norm(x_n) > 100000:  # TODO: make it a reasonable number
-                return None
+                return None, i
             if i >= 10000:
-                return None
+                return None, i
 
-        return x_n
+        return x_n, i
 
     def zeros_idx(self, guess: Vector, simplified: bool) -> Optional[int]:
         """Task 3"""
         if simplified:
-            new_zero = self.simplified_newtons_method(guess)
+            new_zero, _ = self.simplified_newtons_method(guess)
         else:
-            new_zero = self.newtons_method(guess)
+            new_zero, _ = self.newtons_method(guess)
 
         if new_zero is None:
             # newton's method did not converge
@@ -90,6 +90,16 @@ class fractal2D:
             idx = self.zeros_idx(point, simplified)
             indices.append(idx if idx is not None else -2)
         return np.array(indices)
+    
+    def compute_iterations(self, points: np.ndarray, simplified: bool) -> np.ndarray:
+        iterations = []
+        for point in points:
+            if simplified:
+                _, iter = self.simplified_newtons_method(point)
+            else:
+                _, iter = self.newtons_method(point)
+            iterations.append(iter)
+        return np.array(iterations)
 
     def plot(self, N: int, coord: tuple[float], simplified=False) -> None:
         a, b, c, d = coord
@@ -115,12 +125,25 @@ class fractal2D:
             x_n = x_n - invjac @ self.f(x_n)
             i += 1
             if np.linalg.norm(x_n) > 1000000:
-                return None
+                return None, i
             if i >= 10000:
-                return None
+                return None, i
         
-        return x_n
+        return x_n, i
+    
+    def iter_plot(self,  N: int, coord: tuple[float], simplified=False) -> None:
+        a, b, c, d = coord
+        X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
 
+        # by default everything is -1
+        A = np.zeros((N, N)) - 1
+
+        points = np.column_stack((X.ravel(), Y.ravel()))
+        indices = self.compute_iterations(points, simplified)
+        A = indices.reshape((N, N))
+        plt.pcolor(A)
+        # plt.legend()
+        plt.show()
 
 def F(x):
     x1 = x[0]
@@ -133,8 +156,10 @@ def main():
         [lambda x, y: 3 * x**2 - 3 * y**2, lambda x, y: -6 * x * y],
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
-    frac = fractal2D(F)
-    frac.plot(N=100, coord=(-1, 1, -1, 1), simplified=True)
+    frac = fractal2D(F, jac)
+    frac.iter_plot(N=100, coord=(-1, 1, -1, 1), simplified=False)
+
+
 
 
 if __name__ == "__main__":
