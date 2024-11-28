@@ -93,6 +93,7 @@ class fractal2D:
         return np.array(indices)
     
     def compute_iterations(self, points: np.ndarray, simplified: bool) -> np.ndarray:
+        """Task 7"""
         iterations = []
         for point in points:
             if simplified:
@@ -134,6 +135,7 @@ class fractal2D:
         return x_n, i
     
     def iter_plot(self,  N: int, coord: tuple[float], simplified=False) -> None:
+        """Task 7"""
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
 
