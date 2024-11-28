@@ -1,4 +1,5 @@
 from typing import Callable, Optional
+from datetime import datetime
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -104,7 +105,8 @@ class fractal2D:
         A = indices.reshape((N, N))
         plt.pcolor(A)
         # plt.legend()
-        plt.show()
+        # plt.show()
+        plt.savefig(f"pics/{datetime.now()}.png")
 
     def simplified_newtons_method(self, guess: Vector) -> Optional[Vector]:
         """Task 5: Performs simplified Newton's method on function `self.f` using `guess` as a starting point."""
@@ -133,7 +135,7 @@ def main():
         [lambda x, y: 3 * x**2 - 3 * y**2, lambda x, y: -6 * x * y],
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
-    frac = fractal2D(F)
+    frac = fractal2D(F, jacobian_f=jac)
     frac.plot(N=100, coord=(-1, 1, -1, 1), simplified=True)
 
 

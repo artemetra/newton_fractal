@@ -2,3 +2,5 @@
 venv/
 .vscode/
 .DS_Store
+pics/*
+__pycache__/*
