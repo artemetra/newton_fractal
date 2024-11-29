@@ -12,6 +12,9 @@ Number = int | float | np.number
 
 tol = 1e-6
 
+MAX_I = 500
+MAX_NORM = 100
+
 
 def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
     return np.array(
@@ -32,15 +35,15 @@ class fractal2D:
         if jacobian_f is not None:
             self.jac = lambda val: evaluate_jacobian(jacobian_f, val)
             return
-        
+
         # otherwise, we approximate it every time
         self.jac = lambda val: self.get_jacobian_matrix(val)
 
     def newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
-        """Task 2: Performs regular Newton's method on function 
+        """Task 2: Performs regular Newton's method on function
         `self.f` using `guess` as a starting point.
-        
-        Returns the tuple of the zero found or None if the algorithm didn't converge, 
+
+        Returns the tuple of the zero found or None if the algorithm didn't converge,
         and the last iteration count, or -1 if the method ran out of iterations
         """
         x_n = guess
@@ -48,9 +51,9 @@ class fractal2D:
         while np.linalg.norm(self.f(x_n)) > tol:
             x_n = x_n - np.linalg.inv(self.jac(x_n)) @ self.f(x_n)
             i += 1
-            if np.linalg.norm(x_n) > 100000:  # TODO: make it a reasonable number
+            if np.linalg.norm(x_n) > MAX_NORM:
                 return None, i
-            if i >= 10000:
+            if i >= MAX_I:
                 return None, -1
 
         return x_n, i
@@ -92,7 +95,7 @@ class fractal2D:
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
     def compute_indices(self, points: np.ndarray, simplified: bool) -> np.ndarray:
-        """Vectorized computation for all points.""" # FIXME: really?
+        """Vectorized computation for all points."""  # FIXME: really?
         indices = []
         for point in points:
             idx = self.zeros_idx(point, simplified)
@@ -127,10 +130,10 @@ class fractal2D:
         plt.savefig(f"pics/{datetime.now()}.png")
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
-        """Task 5: Performs simplified Newton's method on function 
+        """Task 5: Performs simplified Newton's method on function
         `self.f` using `guess` as a starting point.
-        
-        Returns the tuple of the zero found or None if the algorithm didn't converge, 
+
+        Returns the tuple of the zero found or None if the algorithm didn't converge,
         and the last iteration count, or -1 if the method ran out of iterations
         """
         x_n = guess
@@ -139,9 +142,9 @@ class fractal2D:
         while np.linalg.norm(self.f(x_n)) > tol:
             x_n = x_n - invjac @ self.f(x_n)
             i += 1
-            if np.linalg.norm(x_n) > 1000000:
+            if np.linalg.norm(x_n) > MAX_NORM:
                 return None, i
-            if i >= 10000:
+            if i >= MAX_I:
                 return None, -1
 
         return x_n, i
@@ -157,48 +160,44 @@ class fractal2D:
         points = np.column_stack((X.ravel(), Y.ravel()))
         indices = self.compute_iterations(points, simplified)
         A = indices.reshape((N, N))
-        print(A)
         plt.pcolor(A)
         # plt.legend()
-        plt.show()
+        plt.savefig(f"pics/{datetime.now()}.png")
 
 
 def F(x):
     x1 = x[0]
     x2 = x[1]
-    return np.array([x1**3 - 3 * x1 * x2**2 - 1, 3 * x1**2 * x2 - x2**3])
+    # it is (empirically) faster to return a list instead of numpy array
+    return [x1**3 - 3 * x1 * x2**2 - 1, 3 * x1**2 * x2 - x2**3]
 
 
 def F1_Task8(x):
     x1 = x[0]
     x2 = x[1]
-    return np.array(
-        [x1**3 - 3 * x1 * x2**2 - 2 * x1 - 2, 3 * x1**2 * x2 - x2**3 - 2 * x2]
-    )
+    return [x1**3 - 3 * x1 * x2**2 - 2 * x1 - 2, 3 * x1**2 * x2 - x2**3 - 2 * x2]
 
 
 def F2_Task8(x):
     x1 = x[0]
     x2 = x[1]
-    return np.array(
-        [
-            x1**8
-            - 28 * x1**6 * x2**2
-            + 70 * x1**4 * x2**4
-            + 15 * x1**4
-            - 28 * x1**2 * x2**6
-            - 90 * x1**2 * x2**2
-            + x2**8
-            + 15 * x2**4
-            - 16,
-            8 * x1**7 * x2
-            - 56 * x1**5 * x2**3
-            + 56 * x1**3 * x2**5
-            + 60 * x1**3 * x2
-            - 8 * x1 * x2**7
-            - 60 * x1 * x2**3,
-        ]
-    )
+    return [
+        x1**8
+        - 28 * x1**6 * x2**2
+        + 70 * x1**4 * x2**4
+        + 15 * x1**4
+        - 28 * x1**2 * x2**6
+        - 90 * x1**2 * x2**2
+        + x2**8
+        + 15 * x2**4
+        - 16,
+        8 * x1**7 * x2
+        - 56 * x1**5 * x2**3
+        + 56 * x1**3 * x2**5
+        + 60 * x1**3 * x2
+        - 8 * x1 * x2**7
+        - 60 * x1 * x2**3,
+    ]
 
 
 def main():
