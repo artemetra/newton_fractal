@@ -28,14 +28,21 @@ class fractal2D:
     def __init__(self, f: FunctionType, jacobian_f: Optional[JacobianType] = None):
         self.f = f
 
+        # if we are given a jacobian, we evaluate it directly
         if jacobian_f is not None:
             self.jac = lambda val: evaluate_jacobian(jacobian_f, val)
             return
-
+        
+        # otherwise, we approximate it every time
         self.jac = lambda val: self.get_jacobian_matrix(val)
 
     def newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
-        """Task 2: Performs Newton's method on function `self.f` using `guess` as a starting point."""
+        """Task 2: Performs regular Newton's method on function 
+        `self.f` using `guess` as a starting point.
+        
+        Returns the tuple of the zero found or None if the algorithm didn't converge, 
+        and the last iteration count, or -1 if the method ran out of iterations
+        """
         x_n = guess
         i = 0
         while np.linalg.norm(self.f(x_n)) > tol:
@@ -44,7 +51,7 @@ class fractal2D:
             if np.linalg.norm(x_n) > 100000:  # TODO: make it a reasonable number
                 return None, i
             if i >= 10000:
-                return None, i
+                return None, -1
 
         return x_n, i
 
@@ -85,7 +92,7 @@ class fractal2D:
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
     def compute_indices(self, points: np.ndarray, simplified: bool) -> np.ndarray:
-        """Vectorized computation for all points."""
+        """Vectorized computation for all points.""" # FIXME: really?
         indices = []
         for point in points:
             idx = self.zeros_idx(point, simplified)
@@ -120,7 +127,12 @@ class fractal2D:
         plt.savefig(f"pics/{datetime.now()}.png")
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
-        """Task 5: Performs simplified Newton's method on function `self.f` using `guess` as a starting point."""
+        """Task 5: Performs simplified Newton's method on function 
+        `self.f` using `guess` as a starting point.
+        
+        Returns the tuple of the zero found or None if the algorithm didn't converge, 
+        and the last iteration count, or -1 if the method ran out of iterations
+        """
         x_n = guess
         invjac = np.linalg.inv(self.jac(guess))
         i = 0
@@ -130,7 +142,7 @@ class fractal2D:
             if np.linalg.norm(x_n) > 1000000:
                 return None, i
             if i >= 10000:
-                return None, i
+                return None, -1
 
         return x_n, i
 
@@ -145,6 +157,7 @@ class fractal2D:
         points = np.column_stack((X.ravel(), Y.ravel()))
         indices = self.compute_iterations(points, simplified)
         A = indices.reshape((N, N))
+        print(A)
         plt.pcolor(A)
         # plt.legend()
         plt.show()
@@ -194,8 +207,8 @@ def main():
         [lambda x, y: 3 * x**2 - 3 * y**2, lambda x, y: -6 * x * y],
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
-    frac = fractal2D(F2_Task8)
-    frac.iter_plot(N=100, coord=(-1, 1, -1, 1), simplified=False)
+    frac = fractal2D(F1_Task8)
+    frac.iter_plot(N=100, coord=(-2, 2, -2, 2), simplified=False)
 
 
 if __name__ == "__main__":
