@@ -127,8 +127,8 @@ class fractal2D:
         A = indices.reshape((N, N))
         plt.pcolor(A)
         # plt.legend()
-        # plt.show()
-        plt.savefig(f"pics/{datetime.now()}.png")
+        plt.show()
+        # plt.savefig(f"pics/{datetime.now()}.png")
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
         """Task 5: Performs simplified Newton's method on function
@@ -163,7 +163,8 @@ class fractal2D:
         A = indices.reshape((N, N))
         plt.pcolor(A)
         # plt.legend()
-        plt.savefig(f"pics/{datetime.now()}.png")
+        plt.show()
+        # plt.savefig(f"pics/{datetime.now()}.png")
 
 
 def F(x):
