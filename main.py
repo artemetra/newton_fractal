@@ -12,8 +12,8 @@ Number = int | float | np.number
 
 tol = 1e-6
 
-MAX_I = 500
-MAX_NORM = 100
+MAX_I = 75
+MAX_NORM = 250
 
 
 def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
@@ -51,7 +51,8 @@ class fractal2D:
         while np.linalg.norm(self.f(x_n)) > tol:
             x_n = x_n - np.linalg.inv(self.jac(x_n)) @ self.f(x_n)
             i += 1
-            if np.linalg.norm(x_n) > MAX_NORM:
+            if (norm:=np.linalg.norm(x_n)) > MAX_NORM:
+                print(f"hit {norm}")
                 return None, i
             if i >= MAX_I:
                 return None, -1
@@ -207,7 +208,7 @@ def main():
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
     frac = fractal2D(F1_Task8)
-    frac.iter_plot(N=100, coord=(-2, 2, -2, 2), simplified=False)
+    frac.iter_plot(N=400, coord=(-2, 2, -2, 2), simplified=False)
 
 
 if __name__ == "__main__":
