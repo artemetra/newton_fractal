@@ -1,5 +1,6 @@
 from typing import Callable, Optional
 from datetime import datetime
+import pathlib
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -133,7 +134,8 @@ class fractal2D:
         if show:
             plt.show()
         else:
-            plt.savefig(f"pics/{datetime.now()}.png")
+            filename = datetime.now().strftime("%d-%m-%Y, %H-%M-%S") + ".png"
+            plt.savefig(pathlib.Path("pics/" + filename))
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
         """Task 5: Performs simplified Newton's method on function
@@ -171,7 +173,8 @@ class fractal2D:
         if show:
             plt.show()
         else:
-            plt.savefig(f"pics/{datetime.now()}.png")
+            filename = datetime.now().strftime("%d-%m-%Y, %H-%M-%S") + ".png"
+            plt.savefig(pathlib.Path("pics/" + filename))
 
 
 def F(x):
@@ -218,7 +221,7 @@ def main():
     frac = fractal2D(F2_Task8)
     start = datetime.now()
     print(f"start: {start}")
-    frac.iter_plot(N=10, coord=(-1, 1, -1, 1), simplified=False, show=False)
+    frac.iter_plot(N=4, coord=(-1, 1, -1, 1), simplified=False, show=False)
     print(f"duration: {datetime.now()-start}")
 
 
