@@ -13,7 +13,7 @@ Number = int | float | np.number
 tol = 1e-6
 
 MAX_I = 75
-MAX_NORM = 250
+MAX_NORM = 100000
 
 
 def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
@@ -27,10 +27,10 @@ def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
 
 class fractal2D:
     zeroes: list[Vector] = []
-
+    
     def __init__(self, f: FunctionType, jacobian_f: Optional[JacobianType] = None):
         self.f = f
-
+        self.newton_calls = 0
         # if we are given a jacobian, we evaluate it directly
         if jacobian_f is not None:
             self.jac = lambda val: evaluate_jacobian(jacobian_f, val)
@@ -46,14 +46,17 @@ class fractal2D:
         Returns the tuple of the zero found or None if the algorithm didn't converge,
         and the last iteration count, or -1 if the method ran out of iterations
         """
+        if self.newton_calls % 1000 == 0:
+            print(self.newton_calls)
+        self.newton_calls += 1
         x_n = guess
         i = 0
         while np.linalg.norm(self.f(x_n)) > tol:
             x_n = x_n - np.linalg.inv(self.jac(x_n)) @ self.f(x_n)
             i += 1
-            if (norm:=np.linalg.norm(x_n)) > MAX_NORM:
-                print(f"hit {norm}")
-                return None, i
+            # if (norm:=np.linalg.norm(x_n)) > MAX_NORM:
+            #     print(f"hit {norm}")
+            #     return None, i
             if i >= MAX_I:
                 return None, -1
 
@@ -114,7 +117,7 @@ class fractal2D:
             iterations.append(iter)
         return np.array(iterations)
 
-    def plot(self, N: int, coord: tuple[float], simplified=False) -> None:
+    def plot(self, N: int, coord: tuple[float], simplified=False, show=True) -> None:
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
 
@@ -127,8 +130,10 @@ class fractal2D:
         A = indices.reshape((N, N))
         plt.pcolor(A)
         # plt.legend()
-        plt.show()
-        # plt.savefig(f"pics/{datetime.now()}.png")
+        if show:
+            plt.show()
+        else:
+            plt.savefig(f"pics/{datetime.now()}.png")
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
         """Task 5: Performs simplified Newton's method on function
@@ -150,7 +155,7 @@ class fractal2D:
 
         return x_n, i
 
-    def iter_plot(self, N: int, coord: tuple[float], simplified=False) -> None:
+    def iter_plot(self, N: int, coord: tuple[float], simplified=False, show=True) -> None:
         """Task 7"""
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
@@ -163,8 +168,10 @@ class fractal2D:
         A = indices.reshape((N, N))
         plt.pcolor(A)
         # plt.legend()
-        plt.show()
-        # plt.savefig(f"pics/{datetime.now()}.png")
+        if show:
+            plt.show()
+        else:
+            plt.savefig(f"pics/{datetime.now()}.png")
 
 
 def F(x):
@@ -208,11 +215,12 @@ def main():
         [lambda x, y: 3 * x**2 - 3 * y**2, lambda x, y: -6 * x * y],
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
-    frac = fractal2D(F1_Task8)
-    frac.iter_plot(N=400, coord=(-2, 2, -2, 2), simplified=False)
+    frac = fractal2D(F2_Task8)
+    start = datetime.now()
+    print(f"start: {start}")
+    frac.iter_plot(N=10, coord=(-1, 1, -1, 1), simplified=False, show=False)
+    print(f"duration: {datetime.now()-start}")
 
 
 if __name__ == "__main__":
     main()
-
-# Hello :)
