@@ -171,10 +171,13 @@ class fractal2D:
         # plt.legend()
         
         # Calculate aspect ratio and set figure size accordingly
-        aspect_ratio = (b - a) / (d - c)
-        fig_width = N / 100  # Width in inches (DPI * inches = resolution)
-        fig_height = fig_width / aspect_ratio
-        plt.figure(figsize=(fig_width, fig_height), dpi=N)
+        # If resolution smaller we'll use auto dpi for a nicer image
+        if N>640:
+            aspect_ratio = (b - a) / (d - c)
+            fig_width = N / 100  # Width in inches (DPI * inches = resolution)
+            fig_height = fig_width / aspect_ratio
+            plt.figure(figsize=(fig_width, fig_height), dpi=N)
+
 
 
         # Use imshow for faster rendering with extent set to the coordinates
@@ -187,7 +190,7 @@ class fractal2D:
         else:
             # Save the image with desired resolution
             plt.imshow(A, extent=(a, b, c, d), origin='lower')
-            filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S") + ".png"
+            filename = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + ".png"
             plt.savefig(pathlib.Path("pics/" + filename), dpi=N)
 
 
@@ -235,7 +238,7 @@ def main():
     frac = fractal2D(F2_Task8)
     start = datetime.now()
     print(f"start: {start}")
-    frac.iter_plot(N=100, coord=(-1, 1, -1, 1), simplified=False, show=True)
+    frac.iter_plot(N=100, coord=(-1, 1, -1, 1), simplified=False, show=False)
     print(f"duration: {datetime.now()-start}")
 
 
