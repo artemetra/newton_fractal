@@ -169,14 +169,26 @@ class fractal2D:
         indices = self.compute_iterations(points, simplified)
         A = indices.reshape((N, N))
         # plt.legend()
-        plt.pcolormesh(A) #get rid of this if use imshow
+        
+        # Calculate aspect ratio and set figure size accordingly
+        aspect_ratio = (b - a) / (d - c)
+        fig_width = N / 100  # Width in inches (DPI * inches = resolution)
+        fig_height = fig_width / aspect_ratio
+        plt.figure(figsize=(fig_width, fig_height), dpi=N)
+
+
+        # Use imshow for faster rendering with extent set to the coordinates
+        plt.xlabel("X-axis")  # Label for x-axis
+        plt.ylabel("Y-axis")  # Label for y-axis
+        plt.title("Fractal Iterations")  # Optional: title of the plot
         if show:
-            #plt.imshow(A, extent=(a, b, c, d)) #planck length faster than pcolor/pcolormesh and fixes the axis
-            plt.show(extent=(a, b, c, d))
+            plt.imshow(A, extent=(a, b, c, d), origin='lower') #planck length faster than pcolor/pcolormesh and fixes the axis
+            plt.show()
         else:
-            
+            # Save the image with desired resolution
+            plt.imshow(A, extent=(a, b, c, d), origin='lower')
             filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S") + ".png"
-            plt.savefig(pathlib.Path("pics/" + filename))
+            plt.savefig(pathlib.Path("pics/" + filename), dpi=N)
 
 
 def F(x):
@@ -223,8 +235,8 @@ def main():
     frac = fractal2D(F2_Task8)
     start = datetime.now()
     print(f"start: {start}")
-    frac.iter_plot(N=200, coord=(-1, 1, -1, 1), simplified=False, show=True)
-    print(f"duration: {edatetime.now()-start}")
+    frac.iter_plot(N=100, coord=(-1, 1, -1, 1), simplified=False, show=True)
+    print(f"duration: {datetime.now()-start}")
 
 
 if __name__ == "__main__":
