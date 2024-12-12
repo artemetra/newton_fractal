@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 Vector = np.ndarray
-FunctionType = Callable[[np.ndarray], np.ndarray]
+FunctionType = Callable[[np.ndarray], np.ndarray] 
 JacobianType = list[list[FunctionType]]
 Number = int | float | np.number
 
@@ -129,7 +129,7 @@ class fractal2D:
         # TODO: this is still reeeaaaallllyyy slow
         indices = self.compute_indices(points, simplified)
         A = indices.reshape((N, N))
-        plt.pcolor(A)
+        plt.pcolor(A) #FIXME: according to web its very slow for big arrays. Could be a bottleneck
         # plt.legend()
         if show:
             plt.show()
@@ -168,11 +168,13 @@ class fractal2D:
         points = np.column_stack((X.ravel(), Y.ravel()))
         indices = self.compute_iterations(points, simplified)
         A = indices.reshape((N, N))
-        plt.pcolor(A)
         # plt.legend()
+        plt.pcolormesh(A) #get rid of this if use imshow
         if show:
-            plt.show()
+            #plt.imshow(A, extent=(a, b, c, d)) #planck length faster than pcolor/pcolormesh and fixes the axis
+            plt.show(extent=(a, b, c, d))
         else:
+            
             filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S") + ".png"
             plt.savefig(pathlib.Path("pics/" + filename))
 
@@ -221,8 +223,8 @@ def main():
     frac = fractal2D(F2_Task8)
     start = datetime.now()
     print(f"start: {start}")
-    frac.iter_plot(N=4, coord=(-1, 1, -1, 1), simplified=False, show=False)
-    print(f"duration: {datetime.now()-start}")
+    frac.iter_plot(N=200, coord=(-1, 1, -1, 1), simplified=False, show=True)
+    print(f"duration: {edatetime.now()-start}")
 
 
 if __name__ == "__main__":
