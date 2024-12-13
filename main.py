@@ -170,26 +170,17 @@ class fractal2D:
         A = indices.reshape((N, N))
         # plt.legend()
         
-        # Calculate aspect ratio and set figure size accordingly
         # If resolution smaller we'll use auto dpi for a nicer image
         if N>640:
-            aspect_ratio = (b - a) / (d - c)
-            fig_width = N / 100  # Width in inches (DPI * inches = resolution)
-            fig_height = fig_width / aspect_ratio
-            plt.figure(figsize=(fig_width, fig_height), dpi=N)
+            plt.figure(dpi=N)
 
-
-
-        # Use imshow for faster rendering with extent set to the coordinates
-        plt.xlabel("X-axis")  # Label for x-axis
-        plt.ylabel("Y-axis")  # Label for y-axis
-        plt.title("Fractal Iterations")  # Optional: title of the plot
+        plt.title("Fractal Iterations") 
+        plt.imshow(A, extent=(a, b, c, d), origin='lower')
+        
         if show:
-            plt.imshow(A, extent=(a, b, c, d), origin='lower') #planck length faster than pcolor/pcolormesh and fixes the axis
             plt.show()
         else:
             # Save the image with desired resolution
-            plt.imshow(A, extent=(a, b, c, d), origin='lower')
             filename = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + ".png"
             plt.savefig(pathlib.Path("pics/" + filename), dpi=N)
 
