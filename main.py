@@ -100,7 +100,7 @@ class fractal2D:
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
     def compute_indices(self, points: np.ndarray, simplified: bool) -> np.ndarray:
-        """Vectorized computation for all points."""  # FIXME: really?
+        """Vectorized computation for all points."""  # FIXME: really? Why not?
         indices = []
         for point in points:
             idx = self.zeros_idx(point, simplified)
@@ -118,8 +118,7 @@ class fractal2D:
             iterations.append(iter)
         return np.array(iterations)
 
-    def plot(
-        self, N: int, coord: tuple[float], simplified=False, show=True, iter=False) -> None:
+    def plot(self, N: int, coord: tuple[float], simplified=False, show=True, iter=False) -> None:
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
 
@@ -141,7 +140,7 @@ class fractal2D:
             plt.figure(dpi=N)
 
         plt.imshow(A, extent=(a, b, c, d), origin="lower")
-        # plt.pcolor(A) #TODO: Maybe add extra argument to use it instead of optimised version cause its specified in task
+        # plt.pcolor(A) #we purposfully don't use pcolor as its slower than imshow
         # plt.legend()
         if show:
             plt.show()
@@ -211,10 +210,10 @@ def main():
         [lambda x, y: 3 * x**2 - 3 * y**2, lambda x, y: -6 * x * y],
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
-    frac = fractal2D(F2_Task8)
+    frac = fractal2D(F1_Task8)
     start = datetime.now()
     print(f"start: {start}")
-    frac.plot(N=100, coord=(-1, 1, -1, 1), simplified=False, show=False, iter=False)
+    frac.plot(N=100, coord=(-1, 1, -1, 1), simplified=False, show=False, iter=True)
     print(f"duration: {datetime.now()-start}")
 
 
