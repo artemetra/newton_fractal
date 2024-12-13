@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 Vector = np.ndarray
-FunctionType = Callable[[np.ndarray], np.ndarray] 
+FunctionType = Callable[[np.ndarray], np.ndarray]
 JacobianType = list[list[FunctionType]]
 Number = int | float | np.number
 
@@ -28,7 +28,7 @@ def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
 
 class fractal2D:
     zeroes: list[Vector] = []
-    
+
     def __init__(self, f: FunctionType, jacobian_f: Optional[JacobianType] = None):
         self.f = f
         self.newton_calls = 0
@@ -118,7 +118,8 @@ class fractal2D:
             iterations.append(iter)
         return np.array(iterations)
 
-    def plot(self, N: int, coord: tuple[float], simplified=False, show=True) -> None:
+    def plot(
+        self, N: int, coord: tuple[float], simplified=False, show=True, iter=False) -> None:
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
 
@@ -127,15 +128,26 @@ class fractal2D:
 
         points = np.column_stack((X.ravel(), Y.ravel()))
         # TODO: this is still reeeaaaallllyyy slow
-        indices = self.compute_indices(points, simplified)
+        if iter:
+            indices = self.compute_iterations(points, simplified)
+            plt.title("Fractal Iterations")
+        else:
+            indices = self.compute_indices(points, simplified)
+            plt.title("Newton Fractal")
+
         A = indices.reshape((N, N))
-        plt.pcolor(A) #FIXME: according to web its very slow for big arrays. Could be a bottleneck
+        # If resolution smaller we'll use auto dpi for a nicer image
+        if N > 640:
+            plt.figure(dpi=N)
+
+        plt.imshow(A, extent=(a, b, c, d), origin="lower")
+        # plt.pcolor(A) #TODO: Maybe add extra argument to use it instead of optimised version cause its specified in task
         # plt.legend()
         if show:
             plt.show()
         else:
             filename = datetime.now().strftime("%d-%m-%Y, %H-%M-%S") + ".png"
-            plt.savefig(pathlib.Path("pics/" + filename))
+            plt.savefig(pathlib.Path("pics/" + filename), dpi=N)
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
         """Task 5: Performs simplified Newton's method on function
@@ -156,33 +168,6 @@ class fractal2D:
                 return None, -1
 
         return x_n, i
-
-    def iter_plot(self, N: int, coord: tuple[float], simplified=False, show=True) -> None:
-        """Task 7"""
-        a, b, c, d = coord
-        X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
-
-        # by default everything is -1
-        A = np.zeros((N, N)) - 1
-
-        points = np.column_stack((X.ravel(), Y.ravel()))
-        indices = self.compute_iterations(points, simplified)
-        A = indices.reshape((N, N))
-        # plt.legend()
-        
-        # If resolution smaller we'll use auto dpi for a nicer image
-        if N>640:
-            plt.figure(dpi=N)
-
-        plt.title("Fractal Iterations") 
-        plt.imshow(A, extent=(a, b, c, d), origin='lower')
-        
-        if show:
-            plt.show()
-        else:
-            # Save the image with desired resolution
-            filename = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + ".png"
-            plt.savefig(pathlib.Path("pics/" + filename), dpi=N)
 
 
 def F(x):
@@ -229,7 +214,7 @@ def main():
     frac = fractal2D(F2_Task8)
     start = datetime.now()
     print(f"start: {start}")
-    frac.iter_plot(N=100, coord=(-1, 1, -1, 1), simplified=False, show=False)
+    frac.plot(N=100, coord=(-1, 1, -1, 1), simplified=False, show=False, iter=False)
     print(f"duration: {datetime.now()-start}")
 
 
