@@ -160,7 +160,7 @@ class fractal2D:
             plt.show()
         else:
             filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S") + ".png"
-            plt.savefig(pathlib.Path("pics/" + filename), dpi=N)
+        plt.savefig(pathlib.Path("pics/" + filename))
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
         """Task 5: Performs simplified Newton's method on function
