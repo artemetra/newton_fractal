@@ -12,7 +12,7 @@ JacobianType = list[list[FunctionType]]
 Number = int | float | np.number
 
 tol = 1e-6
-tol_sq = tol**2
+
 MAX_I = 75
 MAX_NORM = 100000
 
@@ -51,7 +51,7 @@ class fractal2D:
         self.newton_calls += 1
         x_n = guess
         i = 0
-        while np.linalg.norm(self.f(x_n)) > tol_sq:
+        while np.linalg.norm(self.f(x_n)) > tol:
             try:
                 x_n = x_n - np.linalg.inv(self.jac(x_n)) @ self.f(x_n)
             except np.linalg.LinAlgError:  # If self.jac(x_n) is singular
