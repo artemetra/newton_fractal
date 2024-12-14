@@ -12,7 +12,7 @@ JacobianType = list[list[FunctionType]]
 Number = int | float | np.number
 
 tol = 1e-6
-
+tol_sq = tol**2
 MAX_I = 75
 MAX_NORM = 100000
 
@@ -44,15 +44,18 @@ class fractal2D:
         `self.f` using `guess` as a starting point.
 
         Returns the tuple of the zero found or None if the algorithm didn't converge,
-        and the last iteration count, or -1 if the method ran out of iterations
+        and the last iteration count, or -1 if the method ran out of iterations 
         """
-        if self.newton_calls % 1000 == 0:
+        if self.newton_calls % 10000 == 0:
             print(self.newton_calls)
         self.newton_calls += 1
         x_n = guess
         i = 0
-        while np.linalg.norm(self.f(x_n)) > tol:
-            x_n = x_n - np.linalg.inv(self.jac(x_n)) @ self.f(x_n)
+        while np.linalg.norm(self.f(x_n)) > tol_sq:
+            try:
+                x_n = x_n - np.linalg.inv(self.jac(x_n)) @ self.f(x_n)
+            except np.linalg.LinAlgError:  # If self.jac(x_n) is singular
+                return None, -1
             i += 1
             # if (norm:=np.linalg.norm(x_n)) > MAX_NORM:
             #     print(f"hit {norm}")
@@ -125,7 +128,6 @@ class fractal2D:
         A = np.zeros((N, N)) - 1
 
         points = np.column_stack((X.ravel(), Y.ravel()))
-        # TODO: this is still reeeaaaallllyyy slow
         if iter:
             indices = self.compute_iterations(points, simplified)
             plt.title("Fractal Iterations")
@@ -134,17 +136,17 @@ class fractal2D:
             plt.title("Newton Fractal")
 
         A = indices.reshape((N, N))
-        # If resolution smaller we'll use auto dpi for a nicer image
+        # If resolution is smaller we'll use auto dpi for a nicer image
         if N > 640:
             plt.figure(dpi=N)
 
         plt.imshow(A, extent=(a, b, c, d), origin="lower")
-        # plt.pcolor(A) #we purposfully don't use pcolor as its slower than imshow
+        # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
         # plt.legend()
         if show:
             plt.show()
         else:
-            filename = datetime.now().strftime("%d-%m-%Y, %H-%M-%S") + ".png"
+            filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S") + ".png"
             plt.savefig(pathlib.Path("pics/" + filename), dpi=N)
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
@@ -155,7 +157,10 @@ class fractal2D:
         and the last iteration count, or -1 if the method ran out of iterations
         """
         x_n = guess
-        invjac = np.linalg.inv(self.jac(guess))
+        try:
+            invjac = np.linalg.inv(self.jac(guess))
+        except np.linalg.LinAlgError:  # If self.jac(guess) is singular
+            return None, -1
         i = 0
         while np.linalg.norm(self.f(x_n)) > tol:
             x_n = x_n - invjac @ self.f(x_n)
