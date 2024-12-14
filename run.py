@@ -4,6 +4,7 @@ import numpy as np
 
 from fractal import fractal2D
 
+
 def F(x):
     x1 = x[0]
     x2 = x[1]
@@ -38,14 +39,28 @@ def F2_Task8(x):
         - 60 * x1 * x2**3,
     ]
 
+
 def F3_pretty(x):
     x1 = x[0]
     x2 = x[1]
 
-    return [np.cos(x1)-x2**2, x1**3 - 3*x2 - 3]
+    return [np.cos(x1) - x2**2, x1**3 - 3 * x2 - 3]
+
 
 def F4(x):
     return F(F(F(x)))
+
+
+def F5(x):
+    x1 = x[0]
+    x2 = x[1]
+    return [np.cos(x2) ** 2 + x1**3.0, x2**2 + x1**2 - 4 * np.sin(x1 * x2)]
+
+
+def F6(x):
+    x1 = x[0]
+    x2 = x[1]
+    return [np.acosh(np.abs(x1) + 4) + x2, -(x1**3) + 20 * x2**2]
 
 
 def main():
@@ -54,11 +69,15 @@ def main():
         [lambda x, y: 3 * x**2 - 3 * y**2, lambda x, y: -6 * x * y],
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
-    frac = fractal2D(F3_pretty)
+    frac = fractal2D(F6)
     start = datetime.now()
-    print(f"start: {start}")
-    frac.plot(N=1000, coord=(-1, 1, -1, 1), simplified=False, show=False, iter=True)
-    print(f"duration: {datetime.now()-start}")
+    print("start:", start)
+    N = 1000
+    print("N^2:", N**2)
+    b = 4
+    frac.plot(N=N, coord=(-4, 0, 0, 4), simplified=False, show=False, iter=True)
+    print("\n\nduration:", datetime.now() - start)
+
 
 if __name__ == "__main__":
     main()

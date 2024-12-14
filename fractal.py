@@ -25,29 +25,40 @@ def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
         ]
     )
 
+
 class fractal2D:
     zeroes: list[Vector] = []
 
     def __init__(self, f: FunctionType, jacobian_f: Optional[JacobianType] = None):
         self.f = f
         self.newton_calls = 0
+        self.last_grouped_call = datetime.now()
+        self.plot_n = 0
         # if we are given a jacobian, we evaluate it directly
         if jacobian_f is not None:
             self.jac = lambda val: evaluate_jacobian(jacobian_f, val)
-            return
-
-        # otherwise, we approximate it every time
-        self.jac = lambda val: self.get_jacobian_matrix(val)
+        else:
+            # otherwise, we approximate it every time
+            self.jac = lambda val: self.get_jacobian_matrix(val)
 
     def newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
         """Task 2: Performs regular Newton's method on function
         `self.f` using `guess` as a starting point.
 
         Returns the tuple of the zero found or None if the algorithm didn't converge,
-        and the last iteration count, or -1 if the method ran out of iterations 
+        and the last iteration count, or -1 if the method ran out of iterations
         """
-        if self.newton_calls % 10000 == 0:
-            print(self.newton_calls)
+        if self.newton_calls % 1000 == 0:
+            now = datetime.now()
+            print(
+                f"{self.newton_calls}/{self.plot_n}",
+                "   ",
+                "took",
+                now - self.last_grouped_call,
+                "to compute 1000",
+                end="\r",
+            )
+            self.last_grouped_call = now
         self.newton_calls += 1
         x_n = guess
         i = 0
@@ -120,10 +131,12 @@ class fractal2D:
             iterations.append(iter)
         return np.array(iterations)
 
-    def plot(self, N: int, coord: tuple[float], simplified=False, show=True, iter=False) -> None:
+    def plot(
+        self, N: int, coord: tuple[float], simplified=False, show=True, iter=False
+    ) -> None:
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
-
+        self.plot_n = N**2
         # by default everything is -1
         A = np.zeros((N, N)) - 1
 
