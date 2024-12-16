@@ -32,6 +32,7 @@ class fractal2D:
     zeroes: list[Vector] = []
 
     def __init__(self, f: FunctionType, jacobian_f: Optional[JacobianType] = None):
+        #Artem Lukin
         self.f = f
         self.newton_calls = 0
         self.last_grouped_call = datetime.now()
@@ -50,19 +51,7 @@ class fractal2D:
         Returns the tuple of the zero found or None if the algorithm didn't converge,
         and the last iteration count, or -1 if the method ran out of iterations
         """
-        if self.newton_calls % GROUP_SIZE == 0:
-            now = datetime.now()
-            print(
-                f"{self.newton_calls}/{self.N_squared}",
-                "   ",
-                "took",
-                now - self.last_grouped_call,
-                "to compute",
-                GROUP_SIZE,
-                end="\r",
-            )
-            self.last_grouped_call = now
-        self.newton_calls += 1
+        self.print_and_update_progress()
         x_n = guess
         i = 0
         while np.linalg.norm(self.f(x_n)) > TOL_NEWTON:
@@ -71,9 +60,30 @@ class fractal2D:
             except np.linalg.LinAlgError:  # If self.jac(x_n) is singular
                 return None, -1
             i += 1
-            # if (norm:=np.linalg.norm(x_n)) > MAX_NORM:
-            #     print(f"hit {norm}")
-            #     return None, i
+            if i >= MAX_I:
+                return None, -1
+
+        return x_n, i
+    
+    def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
+        """Task 5: Performs simplified Newton's method on function
+        `self.f` using `guess` as a starting point.
+
+        Returns the tuple of the zero found or None if the algorithm didn't converge,
+        and the last iteration count, or -1 if the method ran out of iterations
+        """
+        x_n = guess
+        self.print_and_update_progress()
+        try:
+            invjac = np.linalg.inv(self.jac(guess))
+        except np.linalg.LinAlgError:  # If self.jac(guess) is singular
+            return None, -1
+        i = 0
+        while np.linalg.norm(self.f(x_n)) > TOL_NEWTON:
+            x_n = x_n - invjac @ self.f(x_n)
+            i += 1
+            if np.linalg.norm(x_n) > MAX_NORM:
+                return None, i
             if i >= MAX_I:
                 return None, -1
 
@@ -116,7 +126,7 @@ class fractal2D:
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
     def compute_indices(self, points: np.ndarray, simplified: bool) -> np.ndarray:
-        """Vectorized computation for all points."""  # FIXME: really? Why not?
+        """Vectorized computation for all points."""  
         indices = []
         for point in points:
             idx = self.zeros_idx(point, simplified)
@@ -124,7 +134,7 @@ class fractal2D:
         return np.array(indices)
 
     def compute_iterations(self, points: np.ndarray, simplified: bool) -> np.ndarray:
-        """Task 7"""
+        """Task 7; Yannick Kapelle"""
         iterations = []
         for point in points:
             if simplified:
@@ -149,15 +159,17 @@ class fractal2D:
         self.N_squared = N**2
         fig, ax = plt.subplots()
         points = np.column_stack((X.ravel(), Y.ravel()))
+        # Yannick Kapelle
         if iter:
-            indices = self.compute_iterations(points, simplified)
+            result = self.compute_iterations(points, simplified)
             plt.title("Fractal Iterations")
         else:
-            indices = self.compute_indices(points, simplified)
+            result = self.compute_indices(points, simplified)
             plt.title("Newton Fractal")
 
-        A = indices.reshape((N, N))
+        A = result.reshape((N, N))
 
+        #Yannick Kapelle
         # matplotlib's default ppi is 72. the minimum figsize
         # is picked to be 6 by 6. If N > 72*6 = 432, we scale the
         # figsize accordingly.
@@ -195,16 +207,10 @@ class fractal2D:
         else:
             filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S") + ".png"
             plt.savefig(pathlib.Path("pics/" + filename))
-
-    def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
-        """Task 5: Performs simplified Newton's method on function
-        `self.f` using `guess` as a starting point.
-
-        Returns the tuple of the zero found or None if the algorithm didn't converge,
-        and the last iteration count, or -1 if the method ran out of iterations
-        """
-        x_n = guess
-        if self.newton_calls % 1000 == 0:
+    
+    # Artem Lukin
+    def print_and_update_progress(self):
+        if self.newton_calls % GROUP_SIZE == 0:
             now = datetime.now()
             print(
                 f"{self.newton_calls}/{self.N_squared}",
@@ -217,17 +223,3 @@ class fractal2D:
             )
             self.last_grouped_call = now
         self.newton_calls += 1
-        try:
-            invjac = np.linalg.inv(self.jac(guess))
-        except np.linalg.LinAlgError:  # If self.jac(guess) is singular
-            return None, -1
-        i = 0
-        while np.linalg.norm(self.f(x_n)) > TOL_NEWTON:
-            x_n = x_n - invjac @ self.f(x_n)
-            i += 1
-            if np.linalg.norm(x_n) > MAX_NORM:
-                return None, i
-            if i >= MAX_I:
-                return None, -1
-
-        return x_n, i
