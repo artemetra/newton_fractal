@@ -143,13 +143,13 @@ class fractal2D:
         fig, ax = plt.subplots()
         points = np.column_stack((X.ravel(), Y.ravel()))
         if iter:
-            indices = self.compute_iterations(points, simplified)
+            result = self.compute_iterations(points, simplified)
             plt.title("Fractal Iterations")
         else:
-            indices = self.compute_indices(points, simplified)
+            result = self.compute_indices(points, simplified)
             plt.title("Newton Fractal")
 
-        A = indices.reshape((N, N))
+        A = result.reshape((N, N))
 
         # matplotlib's default ppi is 72. the minimum figsize
         # is picked to be 6 by 6. If N > 72*6 = 432, we scale the
@@ -161,7 +161,8 @@ class fractal2D:
         else:
             fig.set_size_inches(6, 6)
 
-        plt.imshow(A, extent=(a, b, c, d), origin="lower")
+        # Interpolation put to nearest so we do not have any blur.
+        plt.imshow(A, extent=(a, b, c, d), origin="lower", interpolation="nearest")
         # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
         if show:
             plt.show()
