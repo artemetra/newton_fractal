@@ -138,9 +138,10 @@ class fractal2D:
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
         self.plot_n = N**2
         # by default everything is -1
-        #TODO: Explain why or delete
+        # TODO: Explain why or delete
         A = np.zeros((N, N)) - 1
 
+        fig, ax = plt.subplots()
         points = np.column_stack((X.ravel(), Y.ravel()))
         if iter:
             indices = self.compute_iterations(points, simplified)
@@ -150,15 +151,19 @@ class fractal2D:
             plt.title("Newton Fractal")
 
         A = indices.reshape((N, N))
-        # If resolution is smaller we'll use fixed dpi for square pixels
-        if N > 640:
-            plt.figure(dpi=N)
+
+        # matplotlib's default ppi is 72. the minimum figsize
+        # is picked to be 6 by 6. If N > 72*6 = 432, we scale the
+        # figsize accordingly. 
+        # All of this fixes the issue where individual pixels
+        # were of different aspect ratios.
+        if N > 72 * 6:
+            fig.set_size_inches(N / 72, N / 72)
         else:
-            plt.figure(dpi=640)
+            fig.set_size_inches(6, 6)
 
         plt.imshow(A, extent=(a, b, c, d), origin="lower")
         # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
-        # plt.legend()
         if show:
             plt.show()
         else:
@@ -173,6 +178,18 @@ class fractal2D:
         and the last iteration count, or -1 if the method ran out of iterations
         """
         x_n = guess
+        if self.newton_calls % 1000 == 0:
+            now = datetime.now()
+            print(
+                f"{self.newton_calls}/{self.plot_n}",
+                "   ",
+                "took",
+                now - self.last_grouped_call,
+                "to compute 1000",
+                end="\r",
+            )
+            self.last_grouped_call = now
+        self.newton_calls += 1
         try:
             invjac = np.linalg.inv(self.jac(guess))
         except np.linalg.LinAlgError:  # If self.jac(guess) is singular
