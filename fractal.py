@@ -11,11 +11,13 @@ FunctionType = Callable[[np.ndarray], np.ndarray]
 JacobianType = list[list[FunctionType]]
 Number = int | float | np.number
 
-tol = 1e-6
-
+TOL_NEWTON = 1e-6
+TOL_ZEROES = 1e-6
+JAC_STEP_SIZE = 1e-5
 MAX_I = 75
 MAX_NORM = 100000
 
+GROUP_SIZE = 1000
 
 def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
     return np.array(
@@ -48,21 +50,22 @@ class fractal2D:
         Returns the tuple of the zero found or None if the algorithm didn't converge,
         and the last iteration count, or -1 if the method ran out of iterations
         """
-        if self.newton_calls % 1000 == 0:
+        if self.newton_calls % GROUP_SIZE == 0:
             now = datetime.now()
             print(
                 f"{self.newton_calls}/{self.plot_n}",
                 "   ",
                 "took",
                 now - self.last_grouped_call,
-                "to compute 1000",
+                "to compute",
+                GROUP_SIZE,
                 end="\r",
             )
             self.last_grouped_call = now
         self.newton_calls += 1
         x_n = guess
         i = 0
-        while np.linalg.norm(self.f(x_n)) > tol:
+        while np.linalg.norm(self.f(x_n)) > TOL_NEWTON:
             try:
                 x_n = x_n - np.linalg.inv(self.jac(x_n)) @ self.f(x_n)
             except np.linalg.LinAlgError:  # If self.jac(x_n) is singular
@@ -88,7 +91,7 @@ class fractal2D:
             return None
 
         for idx, z in enumerate(self.zeroes):
-            if np.linalg.norm(new_zero - z) < tol:
+            if np.linalg.norm(new_zero - z) < TOL_ZEROES:
                 return idx  # index of the zero
 
         self.zeroes.append(new_zero)
@@ -97,7 +100,7 @@ class fractal2D:
     def get_jacobian_matrix(self, guess: Vector) -> np.ndarray:
         """An approximation for finding the derivative"""
 
-        h = 0.00001
+        h = JAC_STEP_SIZE
 
         guess_x = np.array(
             [guess[0] + h, guess[1]]
@@ -137,9 +140,6 @@ class fractal2D:
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
         self.plot_n = N**2
-        # by default everything is -1
-        # TODO: Explain why or delete
-        A = np.zeros((N, N)) - 1
 
         fig, ax = plt.subplots()
         points = np.column_stack((X.ravel(), Y.ravel()))
@@ -185,7 +185,8 @@ class fractal2D:
                 "   ",
                 "took",
                 now - self.last_grouped_call,
-                "to compute 1000",
+                "to compute",
+                GROUP_SIZE,
                 end="\r",
             )
             self.last_grouped_call = now
@@ -195,7 +196,7 @@ class fractal2D:
         except np.linalg.LinAlgError:  # If self.jac(guess) is singular
             return None, -1
         i = 0
-        while np.linalg.norm(self.f(x_n)) > tol:
+        while np.linalg.norm(self.f(x_n)) > TOL_NEWTON:
             x_n = x_n - invjac @ self.f(x_n)
             i += 1
             if np.linalg.norm(x_n) > MAX_NORM:
