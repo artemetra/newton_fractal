@@ -138,6 +138,7 @@ class fractal2D:
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
         self.plot_n = N**2
         # by default everything is -1
+        #TODO: Explain why or delete
         A = np.zeros((N, N)) - 1
 
         points = np.column_stack((X.ravel(), Y.ravel()))
@@ -149,9 +150,11 @@ class fractal2D:
             plt.title("Newton Fractal")
 
         A = indices.reshape((N, N))
-        # If resolution is smaller we'll use auto dpi for a nicer image
+        # If resolution is smaller we'll use fixed dpi for square pixels
         if N > 640:
             plt.figure(dpi=N)
+        else:
+            plt.figure(dpi=640)
 
         plt.imshow(A, extent=(a, b, c, d), origin="lower")
         # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
@@ -160,7 +163,7 @@ class fractal2D:
             plt.show()
         else:
             filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S") + ".png"
-        plt.savefig(pathlib.Path("pics/" + filename))
+            plt.savefig(pathlib.Path("pics/" + filename))
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
         """Task 5: Performs simplified Newton's method on function
