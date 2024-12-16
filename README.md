@@ -1,3 +1,3 @@
 # Newton fractal final project
 
-TODO: add stuff to-do LOL
+Nothing to see here. Do not ask, do not question
