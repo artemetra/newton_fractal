@@ -2,5 +2,6 @@
 venv/
 .vscode/
 .DS_Store
-pics/*
+pics*/*
 __pycache__/*
+*.mp4
