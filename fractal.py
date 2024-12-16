@@ -5,19 +5,19 @@ import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 Vector = np.ndarray
 FunctionType = Callable[[np.ndarray], np.ndarray]
 JacobianType = list[list[FunctionType]]
 Number = int | float | np.number
 
-TOL_NEWTON = 1e-6
+TOL_NEWTON = 1e-7
 TOL_ZEROES = 1e-6
 JAC_STEP_SIZE = 1e-5
-MAX_I = 75
+MAX_I = 7500
 MAX_NORM = 100000
 
 GROUP_SIZE = 1000
+
 
 def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
     return np.array(
@@ -135,8 +135,15 @@ class fractal2D:
         return np.array(iterations)
 
     def plot(
-        self, N: int, coord: tuple[float], simplified=False, show=True, iter=False
+        self,
+        N: int,
+        coord: tuple[float],
+        simplified=False,
+        show=True,
+        iter=False,
+        highlight_invalid=False,
     ) -> None:
+        # TODO: add documentation
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
         self.N_squared = N**2
@@ -153,7 +160,7 @@ class fractal2D:
 
         # matplotlib's default ppi is 72. the minimum figsize
         # is picked to be 6 by 6. If N > 72*6 = 432, we scale the
-        # figsize accordingly. 
+        # figsize accordingly.
         # All of this fixes the issue where individual pixels
         # were of different aspect ratios.
         if N > 72 * 6:
@@ -161,7 +168,27 @@ class fractal2D:
         else:
             fig.set_size_inches(6, 6)
 
-        plt.imshow(A, extent=(a, b, c, d), origin="lower")
+        # First, plot everything
+        plt.imshow(
+            A,
+            cmap="viridis",
+            origin="lower",
+            interpolation="nearest",
+            extent=(a, b, c, d),
+        )
+        if highlight_invalid:
+            # mask of all invalid values
+            mask = A == -1
+            # Then, overlay with red all parts that are invalid
+            plt.imshow(
+                np.ma.masked_where(~mask, mask),
+                cmap="hsv",
+                alpha=1,
+                origin="lower",
+                interpolation="nearest",
+                extent=(a, b, c, d),
+            )
+
         # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
         if show:
             plt.show()
