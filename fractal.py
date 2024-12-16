@@ -33,13 +33,13 @@ class fractal2D:
         self.f = f
         self.newton_calls = 0
         self.last_grouped_call = datetime.now()
-        self.plot_n = 0
+        self.N_squared = 0
         # if we are given a jacobian, we evaluate it directly
         if jacobian_f is not None:
             self.jac = lambda val: evaluate_jacobian(jacobian_f, val)
         else:
             # otherwise, we approximate it every time
-            self.jac = lambda val: self.get_jacobian_matrix(val)
+            self.jac = self.get_jacobian_matrix
 
     def newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
         """Task 2: Performs regular Newton's method on function
@@ -51,7 +51,7 @@ class fractal2D:
         if self.newton_calls % 1000 == 0:
             now = datetime.now()
             print(
-                f"{self.newton_calls}/{self.plot_n}",
+                f"{self.newton_calls}/{self.N_squared}",
                 "   ",
                 "took",
                 now - self.last_grouped_call,
@@ -136,7 +136,7 @@ class fractal2D:
     ) -> None:
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
-        self.plot_n = N**2
+        self.N_squared = N**2
         # by default everything is -1
         # TODO: Explain why or delete
         A = np.zeros((N, N)) - 1
@@ -181,7 +181,7 @@ class fractal2D:
         if self.newton_calls % 1000 == 0:
             now = datetime.now()
             print(
-                f"{self.newton_calls}/{self.plot_n}",
+                f"{self.newton_calls}/{self.N_squared}",
                 "   ",
                 "took",
                 now - self.last_grouped_call,
