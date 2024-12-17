@@ -54,9 +54,9 @@ class fractal2D:
         self.print_and_update_progress()
         x_n = guess
         i = 0
-        while np.linalg.norm(self.f(x_n)) > TOL_NEWTON:
+        while np.linalg.norm(Reused_Calc :=self.f(x_n)) > TOL_NEWTON:
             try:
-                x_n = x_n - np.linalg.inv(self.jac(x_n)) @ self.f(x_n)
+                x_n = x_n - np.linalg.inv(self.jac(x_n)) @ Reused_Calc
             except np.linalg.LinAlgError:  # If self.jac(x_n) is singular
                 return None, -1
             i += 1
@@ -68,6 +68,7 @@ class fractal2D:
         return x_n, i
     
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
+        #Björn
         """Task 5: Performs simplified Newton's method on function
         `self.f` using `guess` as a starting point.
 
@@ -88,10 +89,10 @@ class fractal2D:
                 return None, i
             if i >= MAX_I:
                 return None, -1
-
         return x_n, i
 
     def zeros_idx(self, guess: Vector, simplified: bool) -> Optional[int]:
+        #Björn
         """Task 3"""
         if simplified:
             new_zero, _ = self.simplified_newtons_method(guess)
@@ -190,6 +191,7 @@ class fractal2D:
             interpolation="nearest",
             extent=(a, b, c, d),
         )
+        # Artem Lukin
         if highlight_invalid:
             # mask of all invalid values
             mask = A == -1
