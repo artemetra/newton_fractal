@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 Vector = np.ndarray
-FunctionType = Callable[[np.ndarray], np.ndarray]
+FunctionType = Callable[[Vector], Vector]
 JacobianType = list[list[FunctionType]]
 Number = int | float | np.number
 
