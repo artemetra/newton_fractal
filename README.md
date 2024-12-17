@@ -1,3 +1,3 @@
 # Newton fractal final project
 
-Nothing to see here. Do not ask, do not question
+![Newton fractal](assets/newton_fractal.png Newton fractal with N=500)
