@@ -20,6 +20,15 @@ GROUP_SIZE = 1000
 
 
 def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
+    """Artem Lukin: Evaluates a given Jacobian on a vector
+
+    Args:
+        jacobian (JacobianType): the Jacobian to use
+        val (Vector): a 2d vector of values to plug into the Jacobian
+
+    Returns:
+        np.ndarray: the resulting jacobian
+    """
     return np.array(
         [
             [jacobian[0][0](*val), jacobian[0][1](*val)],
@@ -32,10 +41,20 @@ class fractal2D:
     zeroes: list[Vector] = []
 
     def __init__(self, f: FunctionType, jacobian_f: Optional[JacobianType] = None):
-        #Artem Lukin
+        """Artem Lukin: Initialize fractal2D.
+
+        Args:
+            f (FunctionType): the function to evaluate
+            jacobian_f (Optional[JacobianType], optional): Jacobian of the function to use, 
+            if None it is approximated numerically. Defaults to None.
+        """
         self.f = f
+
+        # How many times has the newton's method been called
         self.newton_calls = 0
+        # This is updated every `GROUP_SIZE` newton's method calls
         self.last_grouped_call = datetime.now()
+        # N**2, needed to display progress
         self.N_squared = 0
         # if we are given a jacobian, we evaluate it directly
         if jacobian_f is not None:
@@ -45,16 +64,20 @@ class fractal2D:
             self.jac = self.get_jacobian_matrix
 
     def newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
-        """Task 2: Performs regular Newton's method on function
-        `self.f` using `guess` as a starting point.
+        """Otto Holmström: Performs Newton's method on `self.f` using `guess` as a starting point.
 
-        Returns the tuple of the zero found or None if the algorithm didn't converge,
-        and the last iteration count, or -1 if the method ran out of iterations
+        Args:
+            guess (Vector): starting point, a rough guess for where the zero is located
+
+        Returns:
+            tuple[Optional[Vector], int]: returns the zero the method converged to or None
+            if it didn't converge, and the number of iterations it took,
+            or -1 if it ran out of iterations or it was impossible to continue.
         """
         self.print_and_update_progress()
         x_n = guess
         i = 0
-        while np.linalg.norm(Reused_Calc :=self.f(x_n)) > TOL_NEWTON:
+        while np.linalg.norm(Reused_Calc := self.f(x_n)) > TOL_NEWTON:
             try:
                 x_n = x_n - np.linalg.inv(self.jac(x_n)) @ Reused_Calc
             except np.linalg.LinAlgError:  # If self.jac(x_n) is singular
@@ -66,14 +89,17 @@ class fractal2D:
                 return None, i
 
         return x_n, i
-    
-    def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
-        #Björn
-        """Task 5: Performs simplified Newton's method on function
-        `self.f` using `guess` as a starting point.
 
-        Returns the tuple of the zero found or None if the algorithm didn't converge,
-        and the last iteration count, or -1 if the method ran out of iterations
+    def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
+        """Björn, Task 5: Performs simplified Newton's method on `self.f` using `guess` as a starting point.
+
+        Args:
+            guess (Vector): starting point, a rough guess for where the zero is located
+
+        Returns:
+            tuple[Optional[Vector], int]: returns the zero the method converged to or None
+            if it didn't converge, and the number of iterations it took,
+            or -1 if it ran out of iterations or it was impossible to continue.
         """
         x_n = guess
         self.print_and_update_progress()
@@ -92,8 +118,15 @@ class fractal2D:
         return x_n, i
 
     def zeros_idx(self, guess: Vector, simplified: bool) -> Optional[int]:
-        #Björn
-        """Task 3"""
+        """Task 3, Björn: returns the index of the zero that `guess` converged to
+
+        Args:
+            guess (Vector): initial guess for the zero, starting value for Newton's method
+            simplified (bool): Use simplified Newton's method instead of regular Newton's method
+
+        Returns:
+            Optional[int]: index in `self.zeroes` or None if Newton's method did not converge
+        """
         if simplified:
             new_zero, _ = self.simplified_newtons_method(guess)
         else:
@@ -111,8 +144,14 @@ class fractal2D:
         return len(self.zeroes) - 1  # index of the last zero
 
     def get_jacobian_matrix(self, guess: Vector) -> np.ndarray:
-        """An approximation for finding the derivative"""
+        """Theo Melin: A numerical approximation for a Jacobian matrix at a point
 
+        Args:
+            guess (Vector): the point at which Jacobian is calculated
+
+        Returns:
+            np.ndarray: resulting Jacobian
+        """
         h = JAC_STEP_SIZE
 
         guess_x = np.array(
@@ -129,7 +168,15 @@ class fractal2D:
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
     def compute_indices(self, points: np.ndarray, simplified: bool) -> np.ndarray:
-        """Vectorized computation for all points."""  
+        """Yannick Kapelle: Computes which zero each point converged to after Newton's method
+
+        Args:
+            points (np.ndarray): starting points for Newton's method
+            simplified (bool): Use simplified Newton's method instead of regular Newton's method
+
+        Returns:
+            np.ndarray: array of indices in `self.zeroes`
+        """
         indices = []
         for point in points:
             idx = self.zeros_idx(point, simplified)
@@ -137,7 +184,16 @@ class fractal2D:
         return np.array(indices)
 
     def compute_iterations(self, points: np.ndarray, simplified: bool) -> np.ndarray:
-        """Task 7; Yannick Kapelle"""
+        """Task 7; Yannick Kapelle
+        Computes number of iterations that Newton's method took to converge to a point
+
+        Args:
+            points (np.ndarray): starting points for Newton's method
+            simplified (bool): Use simplified Newton's method instead of regular Newton's method
+
+        Returns:
+            np.ndarray: array of iteration counts
+        """
         iterations = []
         for point in points:
             if simplified:
@@ -156,7 +212,16 @@ class fractal2D:
         iter=False,
         highlight_invalid=False,
     ) -> None:
-        # TODO: add documentation
+        """Artem Lukin, Yannick Kapelle: Computes and plots the fractal.
+
+        Args:
+            N (int): resolution, i.e. number of points in a side
+            coord (tuple[float]): coordinates with respect to which the fractal is rendered
+            simplified (bool, optional): use simplified Newton's method instead of regular Newton's method. Defaults to False.
+            show (bool, optional): show the image instead of saving it to a file. Defaults to True.
+            iter (bool, optional): make an iteration plot instead of a `zeroes`-based Newton fractal. Defaults to False.
+            highlight_invalid (bool, optional): highlight points that didn't converge with red. Defaults to False.
+        """
         a, b, c, d = coord
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
         self.N_squared = N**2
@@ -172,7 +237,7 @@ class fractal2D:
 
         A = result.reshape((N, N))
 
-        #Yannick Kapelle
+        # Yannick Kapelle
         # matplotlib's default ppi is 72. the minimum figsize
         # is picked to be 6 by 6. If N > 72*6 = 432, we scale the
         # figsize accordingly.
@@ -211,19 +276,17 @@ class fractal2D:
         else:
             filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S") + ".png"
             plt.savefig(pathlib.Path("pics/" + filename))
-    
-    # Artem Lukin
+
     def print_and_update_progress(self):
+        """Artem Lukin: Utility function to print the progress of the render and update it"""
         if self.newton_calls % GROUP_SIZE == 0:
             now = datetime.now()
-            print(
-                f"{self.newton_calls}/{self.N_squared}",
-                "   ",
-                "took",
+            stri = "{}/{}    took {} to compute {}".format(
+                self.newton_calls,
+                self.N_squared,
                 now - self.last_grouped_call,
-                "to compute",
                 GROUP_SIZE,
-                end="\r",
             )
+            print(stri, end="\r")
             self.last_grouped_call = now
         self.newton_calls += 1
