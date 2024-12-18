@@ -203,6 +203,7 @@ class fractal2D:
             iterations.append(iter)
         return np.array(iterations)
 
+    #Artem Lukin, Yannick Kapelle
     def plot(
         self,
         N: int,
