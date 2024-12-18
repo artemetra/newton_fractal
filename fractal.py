@@ -10,10 +10,10 @@ FunctionType = Callable[[Vector], Vector]
 JacobianType = list[list[FunctionType]]
 Number = int | float | np.number
 
-TOL_NEWTON = 1e-5
-TOL_ZEROES = 1e-5
+TOL_NEWTON = 1e-6
+TOL_ZEROES = 1e-6
 JAC_STEP_SIZE = 1e-5
-MAX_I = 50
+MAX_I = 100
 MAX_NORM = 100000
 
 GROUP_SIZE = 1000

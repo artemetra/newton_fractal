@@ -69,13 +69,13 @@ def main():
         [lambda x, y: 3 * x**2 - 3 * y**2, lambda x, y: -6 * x * y],
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
-    frac = fractal2D(F6)
+    frac = fractal2D(F2_Task8)
     start = datetime.now()
     print("start:", start)
-    N = 1000
+    N = 10000
     print("N^2:", N**2)
-    b = 4
-    frac.plot(N=N, coord=(-4, 0, 0, 4), simplified=False, show=False, iter=True)
+    b = 3
+    frac.plot(N=N, coord=(-b, 0, 0, b), simplified=False, show=False, iter=True)
     print("\n\nduration:", datetime.now() - start)
 
 
