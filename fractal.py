@@ -45,6 +45,7 @@ class fractal2D:
             self.jac = self.get_jacobian_matrix
 
     def newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
+        # Otto Holmström
         """Task 2: Performs regular Newton's method on function
         `self.f` using `guess` as a starting point.
 
@@ -111,6 +112,7 @@ class fractal2D:
         return len(self.zeroes) - 1  # index of the last zero
 
     def get_jacobian_matrix(self, guess: Vector) -> np.ndarray:
+        #Theo Melin
         """An approximation for finding the derivative"""
 
         h = JAC_STEP_SIZE
@@ -129,6 +131,7 @@ class fractal2D:
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
     def compute_indices(self, points: np.ndarray, simplified: bool) -> np.ndarray:
+        #Yannick Kapelle
         """Vectorized computation for all points."""  
         indices = []
         for point in points:
@@ -147,6 +150,7 @@ class fractal2D:
             iterations.append(iter)
         return np.array(iterations)
 
+    #Artem Lukin, Yannick Kapelle
     def plot(
         self,
         N: int,
