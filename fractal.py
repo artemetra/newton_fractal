@@ -224,9 +224,13 @@ class fractal2D:
             highlight_invalid (bool, optional): highlight points that didn't converge with red. Defaults to False.
         """
         a, b, c, d = coord
+        #Creates a grid out of two one dimensional arrays representing the indexing
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
+        #used for the printing
         self.N_squared = N**2
         fig, ax = plt.subplots()
+        # We use ravel to make the X, Y from two dimnesional to one dimensional arrays.
+        # Then column stack to actually assign for each y row a x column.
         points = np.column_stack((X.ravel(), Y.ravel()))
         # Yannick Kapelle
         if iter:
@@ -236,6 +240,7 @@ class fractal2D:
             result = self.compute_indices(points, simplified)
             plt.title("Newton Fractal")
 
+        # As result is a 1D array of N^2 elements we need to convert this into a 2D array with shape (N, N).
         A = result.reshape((N, N))
 
         # Yannick Kapelle
