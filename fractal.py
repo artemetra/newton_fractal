@@ -91,7 +91,7 @@ class fractal2D:
         return x_n, i
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
-        """Björn, Task 5: Performs simplified Newton's method on `self.f` using `guess` as a starting point.
+        """Björn , Task 5: Performs simplified Newton's method on `self.f` using `guess` as a starting point.
 
         Args:
             guess (Vector): starting point, a rough guess for where the zero is located
@@ -240,7 +240,6 @@ class fractal2D:
             result = self.compute_indices(points, simplified)
             plt.title("Newton Fractal")
 
-        # As result is a 1D array of N^2 elements we need to convert this into a 2D array with shape (N, N).
         A = result.reshape((N, N))
 
         # Yannick Kapelle
