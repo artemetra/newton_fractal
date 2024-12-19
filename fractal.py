@@ -38,7 +38,6 @@ def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
 
 
 class fractal2D:
-
     def __init__(self, f: FunctionType, jacobian_f: Optional[JacobianType] = None):
         """Artem Lukin: Initialize fractal2D.
 
@@ -56,6 +55,7 @@ class fractal2D:
         self.last_grouped_call = datetime.now()
         # N**2, needed to display progress
         self.N_squared = 0
+
         # if we are given a jacobian, we evaluate it directly
         if jacobian_f is not None:
             self.jac = lambda val: evaluate_jacobian(jacobian_f, val)
@@ -91,7 +91,7 @@ class fractal2D:
         return x_n, i
 
     def simplified_newtons_method(self, guess: Vector) -> tuple[Optional[Vector], int]:
-        """Björn , Task 5: Performs simplified Newton's method on `self.f` using `guess` as a starting point.
+        """Björn, Task 5: Performs simplified Newton's method on `self.f` using `guess` as a starting point.
 
         Args:
             guess (Vector): starting point, a rough guess for where the zero is located
@@ -168,14 +168,14 @@ class fractal2D:
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
     def compute_indices(self, points: np.ndarray, simplified: bool) -> np.ndarray:
-        """Yannick Kapelle: Computes which zero each point converged to after Newton's method
+        """Yannick Kapelle: Computes which zero each point in an array converged to after Newton's method
 
         Args:
             points (np.ndarray): starting points for Newton's method
             simplified (bool): Use simplified Newton's method instead of regular Newton's method
 
         Returns:
-            np.ndarray: array of indices in `self.zeroes`
+            np.ndarray: array of indices in `self.zeroes`, with -1 indicating bad values
         """
         indices = []
         for point in points:
@@ -185,14 +185,14 @@ class fractal2D:
 
     def compute_iterations(self, points: np.ndarray, simplified: bool) -> np.ndarray:
         """Task 7; Yannick Kapelle
-        Computes number of iterations that Newton's method took to converge to a point
+        Computes number of iterations that Newton's method took to converge to a zero
 
         Args:
             points (np.ndarray): starting points for Newton's method
             simplified (bool): Use simplified Newton's method instead of regular Newton's method
 
         Returns:
-            np.ndarray: array of iteration counts
+            np.ndarray: array of iteration counts, with -1 indicating bad values
         """
         iterations = []
         for point in points:
@@ -203,7 +203,6 @@ class fractal2D:
             iterations.append(iter)
         return np.array(iterations)
 
-    # Artem Lukin, Yannick Kapelle
     def plot(
         self,
         N: int,
@@ -224,13 +223,14 @@ class fractal2D:
             highlight_invalid (bool, optional): highlight points that didn't converge with red. Defaults to False.
         """
         a, b, c, d = coord
-        # Creates a grid out of two one dimensional arrays representing the indexing
+        # Creates a grid out of two 1-dimensional arrays representing the indexing
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
-        # used for the printing
+        # Used for the printing
         self.N_squared = N**2
+        # Creates the plot
         fig, ax = plt.subplots()
         # We use ravel to make the X, Y from two dimensional to one dimensional arrays.
-        # Then column stack to actually assign for each y row a x column.
+        # Then column stack to actually assign for each y row an x column.
         points = np.column_stack((X.ravel(), Y.ravel()))
         # Yannick Kapelle
         if iter:
@@ -242,7 +242,7 @@ class fractal2D:
 
         A = result.reshape((N, N))
 
-        # Yannick Kapelle
+        # Yannick Kapelle, Artem Lukin
         # matplotlib's default ppi is 72. the minimum figsize
         # is picked to be 6 by 6. If N > 72*6 = 432, we scale the
         # figsize accordingly.
@@ -253,6 +253,8 @@ class fractal2D:
         else:
             fig.set_size_inches(6, 6)
 
+        # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
+
         # First, plot everything
         plt.imshow(
             A,
@@ -261,7 +263,6 @@ class fractal2D:
             interpolation="nearest",
             extent=(a, b, c, d),
         )
-        # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
         # Artem Lukin
         if highlight_invalid:
             # mask of all invalid values
@@ -275,10 +276,12 @@ class fractal2D:
                 interpolation="nearest",
                 extent=(a, b, c, d),
             )
+
         if show:
             plt.show()
         else:
             filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S.%f") + ".png"
+            # make a directory if it doesn't exist yet
             pathlib.Path.mkdir(pathlib.Path("pics"), exist_ok=True)
             plt.savefig(pathlib.Path("pics/" + filename))
 

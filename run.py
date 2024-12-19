@@ -5,7 +5,7 @@ import numpy as np
 from fractal import fractal2D
 
 
-def F(x):
+def F_Task4(x):
     x1 = x[0]
     x2 = x[1]
     # it is (empirically) faster to return a list instead of numpy array
@@ -39,7 +39,7 @@ def F2_Task8(x):
         - 60 * x1 * x2**3,
     ]
 
-
+# === CUSTOM FUNCTIONS ===
 def F3_pretty(x):
     x1 = x[0]
     x2 = x[1]
@@ -48,7 +48,7 @@ def F3_pretty(x):
 
 
 def F4(x):
-    return F(F(F(x)))
+    return F_Task4(F_Task4(F_Task4(x)))
 
 
 def F5(x):
@@ -63,20 +63,49 @@ def F6(x):
     return [np.acosh(np.abs(x1) + 4) + x2, -(x1**3) + 20 * x2**2]
 
 
+def F7(x, a):
+    x1 = x[0]
+    x2 = x[1]
+    return [x1**3 - np.cos(a * x1) * x1 * x2**2 - 1, 3 * x1**2 * x2 - a * x2**3]
+
+
+def F8(x, a):
+    x1 = x[0]
+    x2 = x[1]
+    return [
+        x1**8
+        - 28 * x1**6 * x2**2
+        + 7 * a * x1**4 * x2**4
+        + 15 * x1**4
+        - 28 * x1**2 * x2**6
+        - 90 * x1**2 * x2**2
+        + x2**8
+        + 15 * x2**4
+        - a**2,
+        a * x1**7 * x2
+        - 56 * x1**5 * x2**3
+        + 56 * x1**3 * x2**5
+        + 60 * x1**3 * x2
+        - a * x1 * x2**7
+        - 60 * x1 * x2**3,
+    ]
+
+
 def main():
-    # the pre-calculated jacobian for function `F`
+    # the pre-calculated jacobian for function `F_Task4`
     jac_F = [  # noqa: F841
         [lambda x, y: 3 * x**2 - 3 * y**2, lambda x, y: -6 * x * y],
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
-    frac = fractal2D(F2_Task8)
+
+    frac = fractal2D(F_Task4)
     start = datetime.now()
     print("start:", start)
-    N = 10000
+    N = 50
     print("N^2:", N**2)
-    b = 3
-    frac.plot(N=N, coord=(-b, 0, 0, b), simplified=False, show=False, iter=True)
-    print("\n\nduration:", datetime.now() - start)
+    b = 1
+    frac.plot(N=N, coord=(-b, b, -b, b), simplified=False, show=False, iter=False)
+    print("\nduration:", datetime.now() - start)
 
 
 if __name__ == "__main__":
