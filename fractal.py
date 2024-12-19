@@ -112,7 +112,7 @@ class fractal2D:
             x_n = x_n - invjac @ self.f(x_n)
             i += 1
             if np.linalg.norm(x_n) > MAX_NORM:
-                return None, i
+                return None, -1
             if i >= MAX_I:
                 return None, -1
         return x_n, i
