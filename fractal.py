@@ -77,9 +77,9 @@ class fractal2D:
         self.print_and_update_progress()
         x_n = guess
         i = 0
-        while np.linalg.norm(Reused_Calc := self.f(x_n)) > TOL_NEWTON:
+        while np.linalg.norm(f_x := self.f(x_n)) > TOL_NEWTON:
             try:
-                x_n = x_n - np.linalg.inv(self.jac(x_n)) @ Reused_Calc
+                x_n = x_n - np.linalg.inv(self.jac(x_n)) @ f_x
             except np.linalg.LinAlgError:  # If self.jac(x_n) is singular
                 return None, -1
             i += 1
@@ -108,8 +108,8 @@ class fractal2D:
         except np.linalg.LinAlgError:  # If self.jac(guess) is singular
             return None, -1
         i = 0
-        while np.linalg.norm(self.f(x_n)) > TOL_NEWTON:
-            x_n = x_n - invjac @ self.f(x_n)
+        while np.linalg.norm(f_x := self.f(x_n)) > TOL_NEWTON:
+            x_n = x_n - invjac @ f_x
             i += 1
             if np.linalg.norm(x_n) > MAX_NORM:
                 return None, i

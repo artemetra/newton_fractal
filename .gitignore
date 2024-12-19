@@ -5,3 +5,4 @@ venv/
 pics*/*
 __pycache__/*
 *.mp4
+test/
