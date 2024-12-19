@@ -38,7 +38,6 @@ def evaluate_jacobian(jacobian: JacobianType, val: Vector) -> np.ndarray:
 
 
 class fractal2D:
-    zeroes: list[Vector] = []
 
     def __init__(self, f: FunctionType, jacobian_f: Optional[JacobianType] = None):
         """Artem Lukin: Initialize fractal2D.
@@ -49,6 +48,7 @@ class fractal2D:
             if None it is approximated numerically. Defaults to None.
         """
         self.f = f
+        self.zeroes: list[Vector] = []
 
         # How many times has the newton's method been called
         self.newton_calls = 0
@@ -275,7 +275,6 @@ class fractal2D:
                 interpolation="nearest",
                 extent=(a, b, c, d),
             )
-
         if show:
             plt.show()
         else:
