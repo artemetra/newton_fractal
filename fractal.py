@@ -180,7 +180,7 @@ class fractal2D:
         indices = []
         for point in points:
             idx = self.zeros_idx(point, simplified)
-            indices.append(idx if idx is not None else -2)
+            indices.append(idx if idx is not None else -1)
         return np.array(indices)
 
     def compute_iterations(self, points: np.ndarray, simplified: bool) -> np.ndarray:
