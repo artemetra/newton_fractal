@@ -108,8 +108,8 @@ class fractal2D:
         except np.linalg.LinAlgError:  # If self.jac(guess) is singular
             return None, -1
         i = 0
-        while np.linalg.norm(Reused_Calc := self.f(x_n)) > TOL_NEWTON:
-            x_n = x_n - invjac @ Reused_Calc
+        while np.linalg.norm(f_x := self.f(x_n)) > TOL_NEWTON:
+            x_n = x_n - invjac @ f_x
         while np.linalg.norm(f_x := self.f(x_n)) > TOL_NEWTON:
             x_n = x_n - invjac @ f_x
             i += 1
