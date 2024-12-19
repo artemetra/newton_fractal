@@ -279,7 +279,7 @@ class fractal2D:
         if show:
             plt.show()
         else:
-            filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S") + ".png"
+            filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S.%f") + ".png"
             pathlib.Path.mkdir(pathlib.Path("pics/" + filename), exist_ok=True)
             plt.savefig(pathlib.Path("pics/" + filename))
 
