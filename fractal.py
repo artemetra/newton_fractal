@@ -45,7 +45,7 @@ class fractal2D:
 
         Args:
             f (FunctionType): the function to evaluate
-            jacobian_f (Optional[JacobianType], optional): Jacobian of the function to use, 
+            jacobian_f (Optional[JacobianType], optional): Jacobian of the function to use,
             if None it is approximated numerically. Defaults to None.
         """
         self.f = f
@@ -203,7 +203,7 @@ class fractal2D:
             iterations.append(iter)
         return np.array(iterations)
 
-    #Artem Lukin, Yannick Kapelle
+    # Artem Lukin, Yannick Kapelle
     def plot(
         self,
         N: int,
@@ -224,9 +224,9 @@ class fractal2D:
             highlight_invalid (bool, optional): highlight points that didn't converge with red. Defaults to False.
         """
         a, b, c, d = coord
-        #Creates a grid out of two one dimensional arrays representing the indexing
+        # Creates a grid out of two one dimensional arrays representing the indexing
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
-        #used for the printing
+        # used for the printing
         self.N_squared = N**2
         fig, ax = plt.subplots()
         # We use ravel to make the X, Y from two dimnesional to one dimensional arrays.
