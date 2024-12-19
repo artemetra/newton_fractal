@@ -110,8 +110,6 @@ class fractal2D:
         i = 0
         while np.linalg.norm(f_x := self.f(x_n)) > TOL_NEWTON:
             x_n = x_n - invjac @ f_x
-        while np.linalg.norm(f_x := self.f(x_n)) > TOL_NEWTON:
-            x_n = x_n - invjac @ f_x
             i += 1
             if np.linalg.norm(x_n) > MAX_NORM:
                 return None, -1
