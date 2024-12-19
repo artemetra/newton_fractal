@@ -281,6 +281,7 @@ class fractal2D:
             plt.show()
         else:
             filename = datetime.now().strftime("%Y-%m-%d, %H-%M-%S") + ".png"
+            pathlib.Path.mkdir(pathlib.Path("pics/" + filename))
             plt.savefig(pathlib.Path("pics/" + filename))
 
     def print_and_update_progress(self):
