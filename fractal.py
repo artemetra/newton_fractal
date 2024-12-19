@@ -226,10 +226,10 @@ class fractal2D:
         a, b, c, d = coord
         #Creates a grid out of two one dimensional arrays representing the indexing
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
-        #used for the printing
+        #used for printing
         self.N_squared = N**2
         fig, ax = plt.subplots()
-        # We use ravel to make the X, Y from two dimnesional to one dimensional arrays.
+        # We use ravel to make the X, Y from two dimensional to one dimensional arrays.
         # Then column stack to actually assign for each y row a x column.
         points = np.column_stack((X.ravel(), Y.ravel()))
         # Yannick Kapelle
@@ -262,6 +262,7 @@ class fractal2D:
             interpolation="nearest",
             extent=(a, b, c, d),
         )
+        # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
         # Artem Lukin
         if highlight_invalid:
             # mask of all invalid values
@@ -276,7 +277,6 @@ class fractal2D:
                 extent=(a, b, c, d),
             )
 
-        # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
         if show:
             plt.show()
         else:
