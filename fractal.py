@@ -45,7 +45,7 @@ class fractal2D:
 
         Args:
             f (FunctionType): the function to evaluate
-            jacobian_f (Optional[JacobianType], optional): Jacobian of the function to use, 
+            jacobian_f (Optional[JacobianType], optional): Jacobian of the function to use,
             if None it is approximated numerically. Defaults to None.
         """
         self.f = f
@@ -77,9 +77,9 @@ class fractal2D:
         self.print_and_update_progress()
         x_n = guess
         i = 0
-        while np.linalg.norm(Reused_Calc := self.f(x_n)) > TOL_NEWTON:
+        while np.linalg.norm(f_x := self.f(x_n)) > TOL_NEWTON:
             try:
-                x_n = x_n - np.linalg.inv(self.jac(x_n)) @ Reused_Calc
+                x_n = x_n - np.linalg.inv(self.jac(x_n)) @ f_x
             except np.linalg.LinAlgError:  # If self.jac(x_n) is singular
                 return None, -1
             i += 1
@@ -110,6 +110,8 @@ class fractal2D:
         i = 0
         while np.linalg.norm(Reused_Calc := self.f(x_n)) > TOL_NEWTON:
             x_n = x_n - invjac @ Reused_Calc
+        while np.linalg.norm(f_x := self.f(x_n)) > TOL_NEWTON:
+            x_n = x_n - invjac @ f_x
             i += 1
             if np.linalg.norm(x_n) > MAX_NORM:
                 return None, i
@@ -203,7 +205,7 @@ class fractal2D:
             iterations.append(iter)
         return np.array(iterations)
 
-    #Artem Lukin, Yannick Kapelle
+    # Artem Lukin, Yannick Kapelle
     def plot(
         self,
         N: int,
@@ -224,9 +226,13 @@ class fractal2D:
             highlight_invalid (bool, optional): highlight points that didn't converge with red. Defaults to False.
         """
         a, b, c, d = coord
+        # Creates a grid out of two one dimensional arrays representing the indexing
         X, Y = np.meshgrid(np.linspace(a, b, N), np.linspace(c, d, N))
+        # used for the printing
         self.N_squared = N**2
         fig, ax = plt.subplots()
+        # We use ravel to make the X, Y from two dimensional to one dimensional arrays.
+        # Then column stack to actually assign for each y row a x column.
         points = np.column_stack((X.ravel(), Y.ravel()))
         # Yannick Kapelle
         if iter:
@@ -257,6 +263,7 @@ class fractal2D:
             interpolation="nearest",
             extent=(a, b, c, d),
         )
+        # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
         # Artem Lukin
         if highlight_invalid:
             # mask of all invalid values
@@ -271,7 +278,6 @@ class fractal2D:
                 extent=(a, b, c, d),
             )
 
-        # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
         if show:
             plt.show()
         else:
