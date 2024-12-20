@@ -117,18 +117,9 @@ class fractal2D:
                 return None, -1
         return x_n, i
 
-    def zeros_idx(
+    def indices_and_iterations(
         self, points: np.ndarray, simplified: bool
     ) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
-        """Task 3, Björn: returns the index of the zero that `guess` converged to
-
-        Args:
-            guess (Vector): initial guess for the zero, starting value for Newton's method
-            simplified (bool): Use simplified Newton's method instead of regular Newton's method
-
-        Returns:
-            Optional[int]: index in `self.zeroes` or None if Newton's method did not converge
-        """
         indices = []
         iterations = []
         for point in points:
@@ -192,13 +183,7 @@ class fractal2D:
         """Artem Lukin, Yannick Kapelle: Computes and plots the fractal.
 
         Args:
-            N (int): rescalls % GROUP_SIZE == 0:
-            now = datetime.now()
-            stri = "{}/{}    took {} to compute {}".format(
-                self.newton_calls,
-                self.N_squared,
-                now - self.last_grouped_call,
-                GROUP_SIolution, i.e. number of points in a side
+            N (int): resolution, i.e. number of points in a side
             coord (tuple[float]): coordinates with respect to which the fractal is rendered
             simplified (bool, optional): use simplified Newton's method instead of regular Newton's method. Defaults to False.
             show (bool, optional): show the image instead of saving it to a file. Defaults to True.
@@ -215,11 +200,10 @@ class fractal2D:
         # We use ravel to make the X, Y from two dimensional to one dimensional arrays.
         # Then column stack to actually assign for each y row an x column.
         points = np.column_stack((X.ravel(), Y.ravel()))
-        # Yannick Kapelle
 
-        indices, iterations = self.zeros_idx(points, simplified)
-        ax2.title.set_text("Iteration_plot")
+        indices, iterations = self.indices_and_iterations(points, simplified)
         ax1.title.set_text("Zero Plot")
+        ax2.title.set_text("Iteration_plot")
 
         A_indices = indices.reshape((N, N))
         A_iterations = iterations.reshape((N, N))
