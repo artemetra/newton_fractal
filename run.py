@@ -99,10 +99,10 @@ def main():
         [lambda x, y: 6 * x * y, lambda x, y: 3 * x**2 - 3 * y**2],
     ]
 
-    frac = fractal2D(F_Task4)
+    frac = fractal2D(F1_Task8)
     start = datetime.now()
     print("start:", start)
-    N = 300
+    N = 100
     print("N^2:", N**2)
     b = 1
     frac.plot(
