@@ -153,17 +153,17 @@ class fractal2D:
             np.ndarray: resulting Jacobian
         """
         h = JAC_STEP_SIZE
+        f_guess = self.f(guess)
 
-        guess_x = np.array(
-            [guess[0] + h, guess[1]]
-        )  # takes the guess and adds h to the x value
-        guess_y = np.array([guess[0], guess[1] + h])  # same but for y
+        guess_x = guess + np.array([h, 0])  # takes the guess and adds h to the x value
+        guess_y = guess + np.array([0, h]) # same but for y
+
 
         # Partial derivatives:
-        del_f1_x = (self.f(guess_x)[0] - self.f(guess)[0]) / h
-        del_f1_y = (self.f(guess_y)[0] - self.f(guess)[0]) / h
-        del_f2_x = (self.f(guess_x)[1] - self.f(guess)[1]) / h
-        del_f2_y = (self.f(guess_y)[1] - self.f(guess)[1]) / h
+        del_f1_x = (self.f(guess_x)[0] - f_guess[0]) / h
+        del_f1_y = (self.f(guess_y)[0] - f_guess[0]) / h
+        del_f2_x = (self.f(guess_x)[1] - f_guess[1]) / h
+        del_f2_y = (self.f(guess_y)[1] - f_guess[1]) / h
 
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
@@ -215,7 +215,13 @@ class fractal2D:
         """Artem Lukin, Yannick Kapelle: Computes and plots the fractal.
 
         Args:
-            N (int): resolution, i.e. number of points in a side
+            N (int): rescalls % GROUP_SIZE == 0:
+            now = datetime.now()
+            stri = "{}/{}    took {} to compute {}".format(
+                self.newton_calls,
+                self.N_squared,
+                now - self.last_grouped_call,
+                GROUP_SIolution, i.e. number of points in a side
             coord (tuple[float]): coordinates with respect to which the fractal is rendered
             simplified (bool, optional): use simplified Newton's method instead of regular Newton's method. Defaults to False.
             show (bool, optional): show the image instead of saving it to a file. Defaults to True.

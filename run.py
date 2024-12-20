@@ -101,7 +101,7 @@ def main():
     frac = fractal2D(F_Task4)
     start = datetime.now()
     print("start:", start)
-    N = 50
+    N = 100
     print("N^2:", N**2)
     b = 1
     frac.plot(N=N, coord=(-b, b, -b, b), simplified=False, show=False, iter=False)
