@@ -117,7 +117,9 @@ class fractal2D:
                 return None, -1
         return x_n, i
 
-    def zeros_idx(self, guess: Vector, simplified: bool) -> Optional[int]:
+    def zeros_idx(
+        self, points: np.ndarray, simplified: bool
+    ) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
         """Task 3, Björn: returns the index of the zero that `guess` converged to
 
         Args:
@@ -127,21 +129,34 @@ class fractal2D:
         Returns:
             Optional[int]: index in `self.zeroes` or None if Newton's method did not converge
         """
-        if simplified:
-            new_zero, _ = self.simplified_newtons_method(guess)
-        else:
-            new_zero, _ = self.newtons_method(guess)
+        indices = []
+        iterations = []
+        for point in points:
+            if simplified:
+                new_zero, i = self.simplified_newtons_method(point)
 
-        if new_zero is None:
-            # newton's method did not converge
-            return None
+            else:
+                new_zero, i = self.newtons_method(point)
 
-        for idx, z in enumerate(self.zeroes):
-            if np.linalg.norm(new_zero - z) < TOL_ZEROES:
-                return idx  # index of the zero
+            if new_zero is None:
+                # Method did not converge
+                indices.append(-1)
+                iterations.append(i)
+                continue
 
-        self.zeroes.append(new_zero)
-        return len(self.zeroes) - 1  # index of the last zero
+            # Check if the zero is already known
+            for idx, z in enumerate(self.zeroes):
+                if np.linalg.norm(new_zero - z) < TOL_ZEROES:
+                    indices.append(idx)
+                    iterations.append(i)
+                    break
+            else:
+                # Add the new zero and get its index
+                self.zeroes.append(new_zero)
+                indices.append(len(self.zeroes) - 1)
+                iterations.append(i)
+
+        return np.array(indices), np.array(iterations)  # index of the last zero
 
     def get_jacobian_matrix(self, guess: Vector) -> np.ndarray:
         """Theo Melin: A numerical approximation for a Jacobian matrix at a point
@@ -156,8 +171,7 @@ class fractal2D:
         f_guess = self.f(guess)
 
         guess_x = guess + np.array([h, 0])  # takes the guess and adds h to the x value
-        guess_y = guess + np.array([0, h]) # same but for y
-
+        guess_y = guess + np.array([0, h])  # same but for y
 
         # Partial derivatives:
         del_f1_x = (self.f(guess_x)[0] - f_guess[0]) / h
@@ -167,49 +181,12 @@ class fractal2D:
 
         return np.array([[del_f1_x, del_f1_y], [del_f2_x, del_f2_y]])
 
-    def compute_indices(self, points: np.ndarray, simplified: bool) -> np.ndarray:
-        """Yannick Kapelle: Computes which zero each point in an array converged to after Newton's method
-
-        Args:
-            points (np.ndarray): starting points for Newton's method
-            simplified (bool): Use simplified Newton's method instead of regular Newton's method
-
-        Returns:
-            np.ndarray: array of indices in `self.zeroes`, with -1 indicating bad values
-        """
-        indices = []
-        for point in points:
-            idx = self.zeros_idx(point, simplified)
-            indices.append(idx if idx is not None else -1)
-        return np.array(indices)
-
-    def compute_iterations(self, points: np.ndarray, simplified: bool) -> np.ndarray:
-        """Task 7; Yannick Kapelle
-        Computes number of iterations that Newton's method took to converge to a zero
-
-        Args:
-            points (np.ndarray): starting points for Newton's method
-            simplified (bool): Use simplified Newton's method instead of regular Newton's method
-
-        Returns:
-            np.ndarray: array of iteration counts, with -1 indicating bad values
-        """
-        iterations = []
-        for point in points:
-            if simplified:
-                _, iter = self.simplified_newtons_method(point)
-            else:
-                _, iter = self.newtons_method(point)
-            iterations.append(iter)
-        return np.array(iterations)
-
     def plot(
         self,
         N: int,
         coord: tuple[float],
         simplified=False,
         show=True,
-        iter=False,
         highlight_invalid=False,
     ) -> None:
         """Artem Lukin, Yannick Kapelle: Computes and plots the fractal.
@@ -234,19 +211,18 @@ class fractal2D:
         # Used for the printing
         self.N_squared = N**2
         # Creates the plot
-        fig, ax = plt.subplots()
+        fig, (ax1, ax2) = plt.subplots(1, 2)
         # We use ravel to make the X, Y from two dimensional to one dimensional arrays.
         # Then column stack to actually assign for each y row an x column.
         points = np.column_stack((X.ravel(), Y.ravel()))
         # Yannick Kapelle
-        if iter:
-            result = self.compute_iterations(points, simplified)
-            plt.title("Fractal Iterations")
-        else:
-            result = self.compute_indices(points, simplified)
-            plt.title("Newton Fractal")
 
-        A = result.reshape((N, N))
+        indices, iterations = self.zeros_idx(points, simplified)
+        ax2.title.set_text("Iteration_plot")
+        ax1.title.set_text("Zero Plot")
+
+        A_indices = indices.reshape((N, N))
+        A_iterations = iterations.reshape((N, N))
 
         # Yannick Kapelle, Artem Lukin
         # matplotlib's default ppi is 72. the minimum figsize
@@ -262,20 +238,38 @@ class fractal2D:
         # plt.pcolor(A) # we purposefully don't use pcolor as it's slower than imshow
 
         # First, plot everything
-        plt.imshow(
-            A,
+        ax1.imshow(
+            A_indices,
             cmap="viridis",
             origin="lower",
             interpolation="nearest",
             extent=(a, b, c, d),
         )
-        # Artem Lukin
+
+        ax2.imshow(
+            A_iterations,
+            cmap="viridis",
+            origin="lower",
+            interpolation="nearest",
+            extent=(a, b, c, d),
+        )
+
         if highlight_invalid:
             # mask of all invalid values
-            mask = A == -1
+            mask_indices = A_indices == -1
+            mask_iterations = A_iterations == -1
+
             # Then, overlay with red all parts that are invalid
-            plt.imshow(
-                np.ma.masked_where(~mask, mask),
+            ax1.imshow(
+                np.ma.masked_where(~mask_indices, mask_indices),
+                cmap="hsv",
+                alpha=1,
+                origin="lower",
+                interpolation="nearest",
+                extent=(a, b, c, d),
+            )
+            ax2.imshow(
+                np.ma.masked_where(~mask_iterations, mask_iterations),
                 cmap="hsv",
                 alpha=1,
                 origin="lower",

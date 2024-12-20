@@ -39,6 +39,7 @@ def F2_Task8(x):
         - 60 * x1 * x2**3,
     ]
 
+
 # === CUSTOM FUNCTIONS ===
 def F3_pretty(x):
     x1 = x[0]
@@ -101,10 +102,12 @@ def main():
     frac = fractal2D(F_Task4)
     start = datetime.now()
     print("start:", start)
-    N = 100
+    N = 300
     print("N^2:", N**2)
     b = 1
-    frac.plot(N=N, coord=(-b, b, -b, b), simplified=False, show=False, iter=False)
+    frac.plot(
+        N=N, coord=(-b, b, -b, b), simplified=False, show=False, highlight_invalid=False
+    )
     print("\nduration:", datetime.now() - start)
 
 
